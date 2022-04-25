@@ -68,7 +68,7 @@ export default class ActivitiesDatatable extends JetView {
 					header: [
 						"Due date",
 						{
-							content: "dateFilter"
+							content: "datepickerFilter"
 						}
 					],
 					fillspace: true,
@@ -117,8 +117,8 @@ export default class ActivitiesDatatable extends JetView {
 				"wxi-trash": (e, id) => {
 					this.toggledeleteItem(id);
 				},
-				"wxi-pencil": (e) => {
-					this.toggleEditActivity();
+				"wxi-pencil": (e, id) => {
+					this.toggleEditActivity(id);
 				}
 			}
 		};
@@ -135,7 +135,8 @@ export default class ActivitiesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("activities_datatable");
-		this.windowForm = this.ui(new ModalWindowViewCenter(this.app, ActivitiesForm, "Add activity", 600));
+		this.activitiesForm = new ActivitiesForm(this.app);
+		this.windowForm = this.ui(new ModalWindowViewCenter(this.app, this.activitiesForm, "Add activity.", {width: 600}));
 
 		webix.promise.all([
 			activitiesCollection.waitData,
@@ -186,11 +187,17 @@ export default class ActivitiesDatatable extends JetView {
 
 	toggleAddActivity() {
 		this.show("/top/activities");
-		this.windowForm.showWindow();
+		this.activitiesForm.setFormMode("add");
+		this.windowForm.showWindow("Add activity.");
 	}
 
-	toggleEditActivity() {
-		this.windowForm.showWindow();
+	toggleEditActivity(id) {
+		const datatable = this.$$("activities_datatable");
+		const values = datatable.getItem(id);
+
+		this.activitiesForm.setFormMode("edit");
+		this.activitiesForm.setFormValues(values);
+		this.windowForm.showWindow("Edit activity.");
 	}
 
 	toggledeleteItem(id) {

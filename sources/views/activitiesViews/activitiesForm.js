@@ -3,12 +3,11 @@ import {JetView} from "webix-jet";
 import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
-import statusesCollection from "../../models/statuses";
 
 export default class ActivitiesForm extends JetView {
-	constructor(app, action) {
+	constructor(app) {
 		super(app);
-		this._action = action;
+		this._editMode = "add";
 	}
 
 	config() {
@@ -62,8 +61,7 @@ export default class ActivitiesForm extends JetView {
 							view: "datepicker",
 							label: "Date",
 							name: "Date",
-							format: "%d %M %Y",
-							value: new Date()
+							format: "%d %M %Y"
 						},
 						{
 							gravity: 0.2
@@ -73,8 +71,7 @@ export default class ActivitiesForm extends JetView {
 							label: "Time",
 							name: "Time",
 							format: "%H:%i",
-							type: "time",
-							value: new Date()
+							type: "time"
 						}
 					]
 				},
@@ -91,8 +88,8 @@ export default class ActivitiesForm extends JetView {
 						{ },
 						{
 							view: "button",
-							localId: "actionBtn",
-							value: "Save",
+							localId: "form_button-save",
+							value: this._editMode === "add" ? "Add" : "Save",
 							css: "webix_primary",
 							width: 150,
 							click: () => this.toggleUpdateOrSave()
@@ -121,11 +118,11 @@ export default class ActivitiesForm extends JetView {
 		const form = this.$$("activities_edit-form");
 
 		form.clear();
+		form.clearValidation();
 	}
 
 	toggleUpdateOrSave() {
 		const form = this.$$("activities_edit-form");
-		const idParam = this.getParam("id");
 
 		if (form.validate()) {
 			const values = form.getValues();
@@ -141,9 +138,9 @@ export default class ActivitiesForm extends JetView {
 			dataValues.DueDate = `${date} ${time}`;
 
 
-			idParam ?
-				activitiesCollection.updateItem(id, dataValues) :
-				activitiesCollection.add(dataValues);
+			this._editMode === "add" ?
+				activitiesCollection.add(dataValues) :
+				activitiesCollection.updateItem(id, dataValues);
 
 			form.clear();
 			this.getParentView().hideWindow();
@@ -153,37 +150,33 @@ export default class ActivitiesForm extends JetView {
 		}
 	}
 
-	urlChange() {
-		this.setFormValues();
+	setFormValues(data) {
+		const form = this.$$("activities_edit-form");
+		const dateAndTime = new Date(data.DueDate);
+		const dataValues = {
+			...data,
+			Date: dateAndTime,
+			Time: dateAndTime
+		};
+
+		form.setValues(dataValues);
 	}
 
-	setFormValues() {
-		webix.promise.all([
-			activitiesCollection.waitData,
-			activityTypesCollection.waitData,
-			contactsCollection.waitData,
-			statusesCollection.waitData
-		]).then(() => {
-			const idParam = this.getParam("id");
-			const form = this.$$("activities_edit-form");
+	setFormMode(mode) {
+		const form = this.$$("activities_edit-form");
+		const activeButton = this.$$("form_button-save");
+		const activeButtonLabel = mode === "add" ? "Add" : "Save";
 
-			if (idParam) {
-				const item = activitiesCollection.getItem(idParam);
-				const dateAndTime = new Date(item.DueDate);
-				const itemValues = {
-					...item,
-					Date: dateAndTime,
-					Time: dateAndTime
-				};
+		if (mode === "add") {
+			const currentDate = new Date();
 
-				// this.getParentView().getHead().setHTML("Edit activity");
-				form.setValues(itemValues);
-			}
-			else {
-				// this.getParentView().getHead().setHTML("Add activity");
-				form.clear();
-			}
-		});
+			form.elements.Date.setValue(currentDate);
+			form.elements.Time.setValue(currentDate);
+		}
+
+		this._editMode = mode;
+		activeButton.define("label", activeButtonLabel);
+		activeButton.refresh();
 	}
 
 	clearFormValidation() {

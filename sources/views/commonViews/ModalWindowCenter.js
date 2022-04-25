@@ -1,19 +1,20 @@
 import {JetView} from "webix-jet";
 
 export default class ModalWindowViewCenter extends JetView {
-	constructor(app, view, head, width) {
+	constructor(app, view, headName, options) {
 		super(app);
 		this._view = view;
-		this._head = head;
-		this._width = width;
+		this._headName = headName;
+		this._options = options;
 	}
 
 	config() {
 		return {
 			view: "window",
-			head: this._head,
+			localId: "window-center",
+			head: this._headName,
 			position: "center",
-			width: this._width,
+			width: this._options.width,
 			modal: true,
 			body: {
 				rows: [
@@ -23,8 +24,11 @@ export default class ModalWindowViewCenter extends JetView {
 		};
 	}
 
-	showWindow() {
-		this.getRoot().show();
+	showWindow(headValue) {
+		const popupWindow = this.$$("window-center");
+
+		popupWindow.getHead().setHTML(headValue);
+		popupWindow.show();
 	}
 
 	hideWindow() {
