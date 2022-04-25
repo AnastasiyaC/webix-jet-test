@@ -138,9 +138,12 @@ export default class ActivitiesForm extends JetView {
 			dataValues.DueDate = `${date} ${time}`;
 
 
-			this._editMode === "add" ?
-				activitiesCollection.add(dataValues) :
+			if (this._editMode === "add") {
+				activitiesCollection.add(dataValues);
+			}
+			else {
 				activitiesCollection.updateItem(id, dataValues);
+			}
 
 			form.clear();
 			this.getParentView().hideWindow();
