@@ -56,3 +56,67 @@
 	font-size:20px;
 	vertical-align:middle;
 }
+.template-header {
+    font-size: 20px;
+    float: left;
+    margin-left: 10%;
+}
+.list-contact .webix_list_item{
+    display: flex;
+    align-items: center;
+    column-gap: 16px;
+}
+.contact__image{
+    border-radius: 50%;
+    object-fit: contain;
+}
+.contact__name{
+    line-height: 22px;
+    text-transform: capitalize;
+}
+.button-contact-toolbar .webix_button {
+    border: 1px solid black;
+    border-radius: 5px;
+}
+.template--grid_contact-info .webix_template .contact-info{
+    display: grid;
+    grid-template-areas: 
+    "name name name"  
+    "photo details details" 
+    "status . .";
+    grid-template-columns: 200px 1fr 1fr;  
+    grid-template-rows: 58px 200px 30px; 
+    grid-gap: 20px;
+}
+.contact-info__name{
+    grid-area: name;
+    font-size: 34px;
+    align-self: center;
+}
+.contact-info__photo{
+    grid-area: photo;
+}
+.contact-info__image{
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+.contact-info__status{
+    font-size: 20px;
+    grid-area: status;
+    align-self: center;
+    justify-self: center;
+}
+.contact-info__details{
+    grid-area: details;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    grid-gap: 22px;
+}
+.details__item {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    grid-gap: 6px;
+}
