@@ -114,6 +114,7 @@ export default class ActivitiesForm extends JetView {
 		form.clear();
 		form.clearValidation();
 		this.app.callEvent("editor:close", []);
+		this.show("/top/activities");
 	}
 
 	toggleUpdateOrSave() {
@@ -135,13 +136,16 @@ export default class ActivitiesForm extends JetView {
 
 			if (this._editMode === "add") {
 				activitiesCollection.add(dataValues);
+				webix.message("Added new activity!");
 			}
 			else {
 				activitiesCollection.updateItem(id, dataValues);
+				webix.message("Activity was updated!");
 			}
 
 			form.clear();
 			this.app.callEvent("editor:close", []);
+			this.show("/top/activities");
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
@@ -176,28 +180,12 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	setFormMode(mode) {
-		const form = this.$$("activities_edit-form");
 		const activeButton = this.$$("form_button-save");
 		const activeButtonLabel = mode === "add" ? "Add" : "Save";
-
-		if (mode === "add") {
-			const currentDate = new Date();
-
-			form.elements.Date.setValue(currentDate);
-			form.elements.Time.setValue(currentDate);
-		}
 
 		this._editMode = mode;
 		activeButton.define("label", activeButtonLabel);
 		activeButton.refresh();
-	}
-
-	setCurrentDateAndTime() {
-		const form = this.$$("activities_edit-form");
-		const currentDate = new Date();
-
-		form.elements.Date.setValue(currentDate);
-		form.elements.Time.setValue(currentDate);
 	}
 
 	clearFormValidation() {

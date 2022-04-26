@@ -132,41 +132,17 @@ export default class ActivitiesDatatable extends JetView {
 		const datatable = this.$$("activities_datatable");
 		this.windowForm = this.ui(ActivitiesModalWindow);
 
-		this.setIdParam();
-		this.on(datatable, "onAfterSelect", id => this.show(`./activities?id=${id}`));
-	}
-
-	urlChange() {
-		const idParam = this.getParam("id");
-		const datatable = this.$$("activities_datatable");
-
-		if (!idParam) datatable.unselectAll();
-	}
-
-	setIdParam() {
 		webix.promise.all([
 			activitiesCollection.waitData,
 			activityTypesCollection.waitData,
 			contactsCollection.waitData
 		]).then(() => {
-			const datatable = this.$$("activities_datatable");
-			const idParam = this.getParam("id");
-
 			datatable.parse(activitiesCollection);
 			this.on(activitiesCollection.data, "onStoreUpdated", () => datatable.filterByAll());
-
-			if (!idParam) {
-				this.show("/top/activities");
-				return;
-			}
-
-			this.setParam("id", idParam, true);
-			datatable.select(idParam);
 		});
 	}
 
 	toggleAddActivity() {
-		this.show("/top/activities");
 		this.windowForm.showWindow("");
 	}
 
@@ -182,7 +158,6 @@ export default class ActivitiesDatatable extends JetView {
 			cancel: "No"
 		}).then(() => {
 			activitiesCollection.remove(id);
-			this.show("/top/activities");
 		});
 	}
 
