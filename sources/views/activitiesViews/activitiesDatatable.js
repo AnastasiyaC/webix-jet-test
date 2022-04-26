@@ -3,8 +3,7 @@ import {JetView} from "webix-jet";
 import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
-import ModalWindowViewCenter from "../commonViews/ModalWindowCenter";
-import ActivitiesForm from "./activitiesForm";
+import ActivitiesModalWindow from "./ActivitiesModalWindow";
 
 export default class ActivitiesDatatable extends JetView {
 	config() {
@@ -93,7 +92,7 @@ export default class ActivitiesDatatable extends JetView {
 					template: (obj) => {
 						const contact = contactsCollection.getItem(obj.ContactID);
 
-						return contact?.value || "activity not found";;
+						return contact?.value || "activity not found";
 					}
 				},
 				{
@@ -131,7 +130,7 @@ export default class ActivitiesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("activities_datatable");
-		this.windowForm = this.ui(new ModalWindowViewCenter(this.app, ActivitiesForm, "Add activity.", {width: 600}));
+		this.windowForm = this.ui(ActivitiesModalWindow);
 
 		this.setIdParam();
 		this.on(datatable, "onAfterSelect", id => this.show(`./activities?id=${id}`));
@@ -154,6 +153,7 @@ export default class ActivitiesDatatable extends JetView {
 			const idParam = this.getParam("id");
 
 			datatable.parse(activitiesCollection);
+			this.on(activitiesCollection.data, "onStoreUpdated", () => datatable.filterByAll());
 
 			if (!idParam) {
 				this.show("/top/activities");
@@ -167,11 +167,11 @@ export default class ActivitiesDatatable extends JetView {
 
 	toggleAddActivity() {
 		this.show("/top/activities");
-		this.windowForm.showWindow("", "Add activity.");
+		this.windowForm.showWindow("");
 	}
 
 	toggleEditActivity(id) {
-		this.windowForm.showWindow(id, "Edit activity.");
+		this.windowForm.showWindow(id);
 	}
 
 	toggledeleteItem(id) {

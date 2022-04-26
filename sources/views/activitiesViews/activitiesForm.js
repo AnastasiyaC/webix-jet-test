@@ -15,6 +15,7 @@ export default class ActivitiesForm extends JetView {
 			view: "form",
 			localId: "activities_edit-form",
 			margin: 10,
+			width: 600,
 			elementsConfig: {
 				on: {
 					onFocus: () => {
@@ -189,6 +190,14 @@ export default class ActivitiesForm extends JetView {
 		this._editMode = mode;
 		activeButton.define("label", activeButtonLabel);
 		activeButton.refresh();
+	}
+
+	setCurrentDateAndTime() {
+		const form = this.$$("activities_edit-form");
+		const currentDate = new Date();
+
+		form.elements.Date.setValue(currentDate);
+		form.elements.Time.setValue(currentDate);
 	}
 
 	clearFormValidation() {
