@@ -40,7 +40,7 @@ export default class ActivitiesForm extends JetView {
 					options: {
 						body: {
 							data: activityTypesCollection,
-							template: "#Value#"
+							template: "#value#"
 						}
 					}
 				},
@@ -51,7 +51,7 @@ export default class ActivitiesForm extends JetView {
 					options: {
 						body: {
 							data: contactsCollection,
-							template: "#FirstName# #LastName#"
+							template: "#value#"
 						}
 					}
 				},
@@ -105,8 +105,8 @@ export default class ActivitiesForm extends JetView {
 			],
 			rules: {
 				Details: webix.rules.isNotEmpty,
-				TypeID: webix.rules.isChecked,
-				ContactID: webix.rules.isChecked,
+				TypeID: webix.rules.isNotEmpty,
+				ContactID: webix.rules.isNotEmpty,
 				Date: webix.rules.isNotEmpty,
 				Time: webix.rules.isNotEmpty
 			}

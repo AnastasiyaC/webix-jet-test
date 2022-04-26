@@ -43,7 +43,7 @@ export default class ContactInfo extends JetView {
 				const defaultUsersPhoto = userIcon;
 				const name = `
 					<span class="contact-info__name">
-						${obj.FirstName} ${obj.LastName || ""}
+						${obj.value || defaultValue}
 					</span>`;
 				const photo = `
 					<div class="contact-info__photo">
@@ -66,7 +66,9 @@ export default class ContactInfo extends JetView {
 						</span>
 					</div>`);
 
-				const infoDetails = infoTotal.join(",").replace(/,/g, "");
+				const infoDetails = infoTotal.join("");
+
+				if (Object.keys(obj).length === 0) return "Contact is not selected...";
 
 				return `
 					<div class="contact-info">
@@ -119,6 +121,7 @@ export default class ContactInfo extends JetView {
 				const item = contactsCollection.getItem(id);
 				info.setValues(item);
 			}
+			else info.setValues({});
 		});
 	}
 }
