@@ -41,9 +41,10 @@ export default class ContactInfo extends JetView {
 								${obj.value || "<dfn style=\"opacity: 0.5\">empty data</dfn>"}
 							</span>`;
 					},
-					localId: "template_contact-name"
+					localId: "template_contact-name",
+					css: "template__contact-name",
+					gravity: 2
 				},
-				{ },
 				settingsButtons
 			]
 		};

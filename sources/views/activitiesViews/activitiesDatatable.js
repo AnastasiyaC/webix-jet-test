@@ -133,23 +133,7 @@ export default class ActivitiesDatatable extends JetView {
 		const datatable = this.$$("activities_datatable");
 		this.windowForm = this.ui(new ModalWindowViewCenter(this.app, ActivitiesForm, "Add activity.", {width: 600}));
 
-		webix.promise.all([
-			activitiesCollection.waitData,
-			activityTypesCollection.waitData,
-			contactsCollection.waitData
-		]).then(() => {
-			const idParam = this.getParam("id");
-
-			datatable.parse(activitiesCollection);
-
-			if (!idParam) {
-				this.show("/top/activities");
-				return;
-			}
-
-			this.setParam("id", idParam, true);
-			datatable.select(idParam);
-		});
+		this.setIdParam();
 		this.on(datatable, "onAfterSelect", id => this.show(`./activities?id=${id}`));
 	}
 
@@ -168,6 +152,8 @@ export default class ActivitiesDatatable extends JetView {
 		]).then(() => {
 			const datatable = this.$$("activities_datatable");
 			const idParam = this.getParam("id");
+
+			datatable.parse(activitiesCollection);
 
 			if (!idParam) {
 				this.show("/top/activities");

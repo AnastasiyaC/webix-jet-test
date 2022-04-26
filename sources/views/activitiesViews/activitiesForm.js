@@ -37,23 +37,13 @@ export default class ActivitiesForm extends JetView {
 					view: "combo",
 					label: "Type",
 					name: "TypeID",
-					options: {
-						body: {
-							data: activityTypesCollection,
-							template: "#value#"
-						}
-					}
+					options: activityTypesCollection
 				},
 				{
 					view: "combo",
 					label: "Contact",
 					name: "ContactID",
-					options: {
-						body: {
-							data: contactsCollection,
-							template: "#value#"
-						}
-					}
+					options: contactsCollection
 				},
 				{
 					cols: [
