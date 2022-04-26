@@ -3,8 +3,8 @@ const activitiesCollection = new webix.DataCollection({
 	save: "rest->http://localhost:8096/api/v1/activities/",
 	scheme: {
 		$init(obj) {
-			// obj.DueDate = webix.i18n.longDateFormatStr(obj.DueDate);
-			obj.dateObj = new Date(obj.DueDate);
+			obj.date = obj.DueDate;
+			obj.DueDate = new Date(obj.DueDate);
 		}
 	}
 });

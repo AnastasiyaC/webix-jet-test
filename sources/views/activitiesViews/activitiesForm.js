@@ -113,12 +113,16 @@ export default class ActivitiesForm extends JetView {
 		};
 	}
 
+	urlChange() {
+		this.setFormValues();
+	}
+
 	toggleCancel() {
-		this.getParentView().hideWindow();
 		const form = this.$$("activities_edit-form");
 
 		form.clear();
 		form.clearValidation();
+		this.app.callEvent("editor:close", []);
 	}
 
 	toggleUpdateOrSave() {
@@ -146,23 +150,38 @@ export default class ActivitiesForm extends JetView {
 			}
 
 			form.clear();
-			this.getParentView().hideWindow();
+			this.app.callEvent("editor:close", []);
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
 		}
 	}
 
-	setFormValues(data) {
-		const form = this.$$("activities_edit-form");
-		const dateAndTime = new Date(data.DueDate);
-		const dataValues = {
-			...data,
-			Date: dateAndTime,
-			Time: dateAndTime
-		};
+	setFormValues() {
+		webix.promise.all([
+			activitiesCollection.waitData,
+			activityTypesCollection.waitData,
+			contactsCollection.waitData
+		]).then(() => {
+			const idParam = this.getParam("id");
+			const form = this.$$("activities_edit-form");
 
-		form.setValues(dataValues);
+			if (idParam) {
+				const item = activitiesCollection.getItem(idParam);
+				const dateAndTime = new Date(item.DueDate);
+				const itemValues = {
+					...item,
+					Date: dateAndTime,
+					Time: dateAndTime
+				};
+
+				this.setFormMode("save");
+				form.setValues(itemValues);
+			}
+			else {
+				this.setFormMode("add");
+			}
+		});
 	}
 
 	setFormMode(mode) {

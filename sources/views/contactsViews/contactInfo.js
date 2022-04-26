@@ -29,6 +29,25 @@ export default class ContactInfo extends JetView {
 			]
 		};
 
+		const toolbar = {
+			type: "clean",
+			cols: [
+				{
+					template: (obj) => {
+						if (Object.keys(obj).length === 0) return "";
+
+						return `
+							<span class="contact-name">
+								${obj.value || "<dfn style=\"opacity: 0.5\">empty data</dfn>"}
+							</span>`;
+					},
+					localId: "template_contact-name"
+				},
+				{ },
+				settingsButtons
+			]
+		};
+
 		const contactInfoTemplate = {
 			template: (obj) => {
 				const info = {
@@ -41,10 +60,6 @@ export default class ContactInfo extends JetView {
 				};
 				const defaultValue = "<dfn style=\"opacity: 0.5\">empty data</dfn>";
 				const defaultUsersPhoto = userIcon;
-				const name = `
-					<span class="contact-info__name">
-						${obj.value || defaultValue}
-					</span>`;
 				const photo = `
 					<div class="contact-info__photo">
 						<img 
@@ -72,7 +87,6 @@ export default class ContactInfo extends JetView {
 
 				return `
 					<div class="contact-info">
-						${name}
 						${photo}
 						${status} 
 						<div class="contact-info__details">
@@ -84,21 +98,11 @@ export default class ContactInfo extends JetView {
 			css: "template--grid_contact-info"
 		};
 
-		// const EmptyTemplate = {
-		// 	template: "contact is not selected"
-		// };
-
 		const ui = {
 			type: "clean",
-			cols: [
-				contactInfoTemplate,
-				{
-					type: "clean",
-					rows: [
-						settingsButtons,
-						{ }
-					]
-				}
+			rows: [
+				toolbar,
+				contactInfoTemplate
 			]
 		};
 
@@ -110,18 +114,23 @@ export default class ContactInfo extends JetView {
 	}
 
 	setContactInfo() {
-		const id = this.getParam("id");
-		const info = this.$$("template_contact-info");
+		const idParam = this.getParam("id");
+		const contactName = this.$$("template_contact-name");
+		const contactInfo = this.$$("template_contact-info");
 
 		webix.promise.all([
 			contactsCollection.waitData,
 			statusesCollection.waitData
 		]).then(() => {
-			if (id) {
-				const item = contactsCollection.getItem(id);
-				info.setValues(item);
+			if (idParam) {
+				const item = contactsCollection.getItem(idParam);
+				contactName.setValues(item);
+				contactInfo.setValues(item);
 			}
-			else info.setValues({});
+			else {
+				contactName.setValues({});
+				contactInfo.setValues({});
+			}
 		});
 	}
 }

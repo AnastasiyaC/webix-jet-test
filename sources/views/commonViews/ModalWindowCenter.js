@@ -26,16 +26,18 @@ export default class ModalWindowViewCenter extends JetView {
 
 	init() {
 		this.on(this.app, "editor:close", () => {
-			this.Hide();
+			this.hideWindow();
 		});
 	}
 
 	showWindow(id, headValue) {
 		const popupWindow = this.getRoot();
-		
+
 		popupWindow.show();
 		popupWindow.getHead().setHTML(headValue);
-		this.setParam("id", id || "0", true);
+		if (id) {
+			this.setParam("id", id, true);
+		}
 	}
 
 	hideWindow() {

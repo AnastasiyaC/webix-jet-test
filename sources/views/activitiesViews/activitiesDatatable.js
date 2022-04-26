@@ -48,10 +48,10 @@ export default class ActivitiesDatatable extends JetView {
 					header: [
 						"Activity type",
 						{
-							content: "selectFilter",
-							collection: activityTypesCollection
+							content: "selectFilter"
 						}
 					],
+					collection: activityTypesCollection,
 					sort: "text",
 					fillspace: true,
 					template: (obj) => {
@@ -84,10 +84,10 @@ export default class ActivitiesDatatable extends JetView {
 					header: [
 						"Contacts",
 						{
-							content: "selectFilter",
-							collection: contactsCollection
+							content: "selectFilter"
 						}
 					],
+					collection: contactsCollection,
 					fillspace: true,
 					sort: "text",
 					template: (obj) => {
@@ -131,7 +131,6 @@ export default class ActivitiesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("activities_datatable");
-		// this.activitiesForm = new ActivitiesForm(this.app);
 		this.windowForm = this.ui(new ModalWindowViewCenter(this.app, ActivitiesForm, "Add activity.", {width: 600}));
 
 		webix.promise.all([
@@ -182,16 +181,10 @@ export default class ActivitiesDatatable extends JetView {
 
 	toggleAddActivity() {
 		this.show("/top/activities");
-		// this.activitiesForm.setFormMode("add");
-		this.windowForm.showWindow(1, "Add activity.");
+		this.windowForm.showWindow("", "Add activity.");
 	}
 
 	toggleEditActivity(id) {
-		const datatable = this.$$("activities_datatable");
-		// const values = datatable.getItem(id);
-
-		// this.activitiesForm.setFormMode("edit");
-		// this.activitiesForm.setFormValues(values);
 		this.windowForm.showWindow(id, "Edit activity.");
 	}
 
@@ -208,6 +201,10 @@ export default class ActivitiesDatatable extends JetView {
 	}
 
 	compareDates(value, filter) {
-		webix.Date.equal(value, filter);
+		const date = new Date(value);
+
+		date.setHours(0);
+		date.setMinutes(0);
+		return webix.Date.equal(date, filter);
 	}
 }
