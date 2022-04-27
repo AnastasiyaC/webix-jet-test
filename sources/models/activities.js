@@ -5,6 +5,11 @@ const activitiesCollection = new webix.DataCollection({
 		$init(obj) {
 			obj.date = obj.DueDate;
 			obj.DueDate = new Date(obj.DueDate);
+		},
+		$save: (obj) => {
+			const dueDateFormat = webix.Date.dateToStr("%Y-%m-%d %H:%i");
+
+			obj.DueDate = dueDateFormat(obj.DueDate);
 		}
 	}
 });
