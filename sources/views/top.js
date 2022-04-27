@@ -1,38 +1,40 @@
 import {JetView, plugins} from "webix-jet";
 
-
 export default class TopView extends JetView {
 	config() {
-		let header = {
-			type: "header", template: this.app.config.name, css: "webix_header app_header"
+		const header = {
+			type: "header",
+			localId: "page_header",
+			template: obj => `<span class="template-header">${obj.name}</span>`,
+			css: "webix_header app_header"
 		};
 
-		let menu = {
+		const menu = {
 			view: "menu",
 			id: "top:menu",
+			localId: "page_menu",
 			css: "app_menu",
 			width: 180,
 			layout: "y",
 			select: true,
 			template: "<span class='webix_icon #icon#'></span> #value# ",
 			data: [
-				{value: "Dashboard", id: "start", icon: "wxi-columns"},
-				{value: "Data",		 id: "data", icon: "wxi-pencil"}
+				{icon: "wxi-user", value: "Contacts", id: "contacts"},
+				{icon: "wxi-calendar", value: "Activities", id: "activities"},
+				{icon: "wxi-columns", value: "Settings", id: "settings"}
 			]
 		};
 
-		let ui = {
-			type: "clean",
-			paddingX: 5,
+		const ui = {
 			css: "app_layout",
-			cols: [
-				{paddingX: 5, paddingY: 10, rows: [{css: "webix_shadow_medium", rows: [header, menu]}]},
-				{type: "wide",
-					paddingY: 10,
-					paddingX: 5,
-					rows: [
+			rows: [
+				header,
+				{
+					cols: [
+						menu,
 						{$subview: true}
-					]}
+					]
+				}
 			]
 		};
 
@@ -41,5 +43,13 @@ export default class TopView extends JetView {
 
 	init() {
 		this.use(plugins.Menu, "top:menu");
+
+		const header = this.$$("page_header");
+		const menu = this.$$("page_menu");
+
+		this.on(menu, "onAfterSelect", () => {
+			const name = menu.getSelectedItem().value;
+			header.setValues({name});
+		});
 	}
 }
