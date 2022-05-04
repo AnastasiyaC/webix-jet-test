@@ -121,6 +121,7 @@ export default class ActivitiesForm extends JetView {
 
 	toggleUpdateOrSave() {
 		const form = this.$$("activities_edit-form");
+		const modeParam = this.getParam("mode");
 
 		if (form.validate()) {
 			const values = form.getValues();
@@ -147,7 +148,8 @@ export default class ActivitiesForm extends JetView {
 
 			form.clear();
 			this.app.callEvent("editor:close", []);
-			this.show("/top/activities");
+			if (modeParam === "name") this.app.callEvent("openContactInfo", [id]);
+			// this.show("/top/activities");
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
@@ -190,22 +192,21 @@ export default class ActivitiesForm extends JetView {
 		this._editMode = mode;
 		activeButton.define("label", activeButtonLabel);
 		activeButton.refresh();
-		this.setFormNameValue(mode);
 	}
 
-	setFormNameValue(mode) {
-		const modeParam = this.getParam("mode");
-		const idParam = this.getParam("id");
-		const nameCombo = this.$$("contact_combo");
+	// setFormNameValue(mode) {
+	// 	const modeParam = this.getParam("mode");
+	// 	const idParam = this.getParam("id");
+	// 	const nameCombo = this.$$("contact_combo");
 
-		if (modeParam === "name" && mode === "add") {
-			console.log('work', idParam)
-			const item = activitiesCollection.getItem(idParam);
+	// 	if (modeParam === "name" && mode === "add") {
+	// 		console.log('work', idParam)
+	// 		const item = activitiesCollection.getItem(idParam);
 
-			nameCombo.setValue(item.value);
-			nameCombo.disable();
-		}
-	}
+	// 		nameCombo.setValue(item.value);
+	// 		nameCombo.disable();
+	// 	}
+	// }
 
 	clearFormValidation() {
 		const form = this.$$("activities_edit-form");

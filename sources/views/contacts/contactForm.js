@@ -5,10 +5,16 @@ import contactsCollection from "../../models/contacts";
 import statusesCollection from "../../models/statuses";
 
 export default class ContactForm extends JetView {
+	constructor(app) {
+		super(app);
+		this._editMode = "add";
+	}
+
 	config() {
 		const formLabel = {
 			view: "label",
-			label: "Edit contact",
+			localId: "contact-form_label",
+			label: this._editMode === "add" ? "Add new contact" : "Edit contact",
 			css: "label__form-label"
 		};
 
@@ -47,6 +53,7 @@ export default class ContactForm extends JetView {
 				},
 				{
 					...this.formTextElement("Address", "Address"),
+					required: true,
 					height: 65
 				}
 			],
@@ -119,14 +126,16 @@ export default class ContactForm extends JetView {
 				view: "button",
 				label: "Cancel",
 				css: "button--border",
-				width: 150
+				width: 150,
+				click: () => this.toggleCancel()
 			},
 			{
 				view: "button",
-				label: "Save",
+				localId: "form_button-save",
+				label: this._editMode === "add" ? "Add" : "Save",
 				css: "webix_primary button--border",
 				width: 150,
-				click: () => this.toggleSaveContact()
+				click: () => this.toggleUpdateOrSaveContact()
 			}
 		];
 
@@ -179,22 +188,78 @@ export default class ContactForm extends JetView {
 				StatusID: webix.rules.isNotEmpty,
 				Email: webix.rules.isEmail,
 				Company: webix.rules.isNotEmpty,
+				Address: webix.rules.isNotEmpty,
 				Birthday: webix.rules.isNotEmpty
 			}
 		};
 	}
 
-	toggleSaveContact() {
+	urlChange() {
+		this.setFormValues();
+	}
+
+	setFormValues() {
+		webix.promise.all([
+			contactsCollection.waitData,
+			statusesCollection.waitData
+		]).then(() => {
+			const idParam = this.getParam("id");
+			const form = this.$$("contact_form");
+
+			if (idParam) {
+				const item = contactsCollection.getItem(idParam);
+				const usersPhoto = this.$$("users_photo");
+
+				// item.Birthday = new Date(item.Birthday);
+				// item.StartDate = new Date(item.StartDate);
+
+				this.setFormMode("save");
+				form.setValues(item);
+				usersPhoto.setValues({Photo: item.Photo});
+			}
+			else {
+				this.setFormMode("add");
+			}
+		});
+	}
+
+	setFormMode(mode) {
+		const activeButton = this.$$("form_button-save");
+		const activeButtonLabel = mode === "add" ? "Add" : "Save";
+		const formLabel = this.$$("contact-form_label");
+		const formLabelValue = mode === "add" ? "Add new contact" : "Edit contact";
+
+		this._editMode = mode;
+		activeButton.define("label", activeButtonLabel);
+		activeButton.refresh();
+		formLabel.define("label", formLabelValue);
+		formLabel.refresh();
+	}
+
+	toggleUpdateOrSaveContact() {
 		const form = this.$$("contact_form");
 
 		if (form.validate()) {
 			const values = form.getValues();
 			const usersPhoto = this.$$("users_photo");
+			const dateFormat = webix.Date.dateToStr("%Y-%m-%d %H:%i");
 
 			values.Photo = usersPhoto.getValues().Photo;
+			values.Birthday = dateFormat(values.Birthday);
+			values.StartDate = dateFormat(values.StartDate);
 
-			contactsCollection.add(values);
-			webix.message("Added new contact!");
+			if (this._editMode === "add") {
+				contactsCollection.add(values);
+				webix.message("Added new contact!");
+				// this.app.callEvent("openContactInfo", [contactsCollection.getLastId()]);
+				this.app.callEvent("onSelectLastContact");
+			}
+			else {
+				contactsCollection.updateItem(values.id, values);
+				webix.message("Contact was updated!");
+				this.app.callEvent("openContactInfo", [values.id]);
+			}
+
 			form.clear();
 		}
 	}
@@ -213,6 +278,15 @@ export default class ContactForm extends JetView {
 		const usersPhoto = this.$$("users_photo");
 
 		usersPhoto.setValues({Photo: ""});
+	}
+
+	toggleCancel() {
+		const form = this.$$("contact_form");
+		const idParam = this.getParam("id");
+
+		form.clear();
+		if (idParam) this.app.callEvent("openContactInfo", [idParam]);
+		else this.app.callEvent("onSelectFirstContact");
 	}
 
 	clearFormValidation() {

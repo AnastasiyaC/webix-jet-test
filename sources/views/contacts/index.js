@@ -1,6 +1,5 @@
 import {JetView} from "webix-jet";
 
-import ContactInfo from "./contactInfo";
 import ContactsList from "./contactsList";
 
 export default class ContactsView extends JetView {
@@ -8,14 +7,16 @@ export default class ContactsView extends JetView {
 		return {
 			cols: [
 				ContactsList,
-				ContactInfo
-				// {$subview: true}
+				{
+					$subview: true
+				}
 			]
 		};
 	}
 
 	init() {
-		// this.on(this.app, "openContactInfo", () => this.show("./contactsInfo"));
-		this.on(this.app, "openContactForm", () => this.show("./contactForm"));
+		this.on(this.app, "openContactInfo", id => this.show(`./contacts.contactInfo?id=${id}`));
+		this.on(this.app, "openAddContactForm", () => this.show("./contacts.contactForm"));
+		this.on(this.app, "openEditContactForm", id => this.show(`./contacts.contactForm?id=${id}`));
 	}
 }

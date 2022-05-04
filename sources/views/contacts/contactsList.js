@@ -39,7 +39,7 @@ export default class ContactsList extends JetView {
 			css: "webix_transparent button--border",
 			padding: 20,
 			margin: 20,
-			click: () => this.toggleOpenContactForm()
+			click: () => this.toggleOpenAddContactForm()
 		};
 
 		return {
@@ -57,34 +57,38 @@ export default class ContactsList extends JetView {
 		contactsCollection.waitData.then(() => {
 			list.sync(contactsCollection);
 
-			const idParam = list.getFirstId();
+			const listFirstId = list.getFirstId();
 
-			if (!idParam) {
+			if (!listFirstId) {
 				this.show("/top/contacts");
 				return;
 			}
 
-			this.setParam("id", idParam, true);
-			list.select(idParam);
-			this.on(contactsCollection.data, "onStoreUpdated", () => list.select(idParam));
+			// this.setParam("id", idParam, true);
+			list.select(listFirstId);
+			// this.on(contactsCollection.data, "onStoreUpdated", () => list.select(idParam));
 		});
 
-		this.on(list, "onAfterSelect", id => this.show(`./contacts?id=${id}`));
+		this.on(list, "onAfterSelect", (id) => {
+			// this.setParam("id", id, true);
+			this.app.callEvent("openContactInfo", [id]);
+		});
+		this.on(this.app, "onSelectFirstContact", () => list.select(list.getFirstId()));
+		this.on(this.app, "onSelectLastContact", () => list.select(list.getLastId()));
 	}
 
-	urlChange() {
-		const idParam = this.getParam("id");
+	// urlChange() {
+	// 	const idParam = this.getParam("id");
+	// 	const list = this.$$("contacts_list");
+	// 	console.log(idParam)
+
+	// 	// if (!idParam) list.unselectAll();
+	// }
+
+	toggleOpenAddContactForm() {
 		const list = this.$$("contacts_list");
 
-		if (!idParam) list.unselectAll();
-	}
-
-	toggleOpenContactForm() {
-		const list = this.$$("contacts_list");
-
-		// this.show("editor");
-		// this.show("/top/settings");
-		this.app.callEvent("openContactForm");
+		this.app.callEvent("openAddContactForm");
 		list.unselectAll();
 	}
 }

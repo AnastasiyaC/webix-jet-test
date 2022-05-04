@@ -29,7 +29,7 @@ export default class ContactInfo extends JetView {
 					icon: "wxi-pencil",
 					css: "webix_transparent button--border",
 					width: 110,
-					click: () => this.toggleOpenContactForm()
+					click: () => this.toggleOpenEditContactForm()
 				}
 			]
 		};
@@ -61,7 +61,7 @@ export default class ContactInfo extends JetView {
 					Skype: "skype",
 					Job: "tag",
 					Company: "briefcase-variant",
-					Birthday: "calendar-month",
+					BirthdayDate: "calendar-month",
 					Address: "map-marker-outline"
 				};
 				const defaultValue = "<dfn style=\"opacity: 0.5\">empty data</dfn>";
@@ -143,9 +143,10 @@ export default class ContactInfo extends JetView {
 		});
 	}
 
-	toggleOpenContactForm() {
-		// this.show("editor");
-		this.show("/top/settings");
+	toggleOpenEditContactForm() {
+		const idParam = this.getParam("id");
+
+		this.app.callEvent("openEditContactForm", [idParam]);
 	}
 
 	toggleDeleteContact() {
@@ -175,10 +176,9 @@ export default class ContactInfo extends JetView {
 
 				if (contactActivities.length) activitiesCollection.remove(contactActivities);
 				if (contactFiles.length) filesCollection.remove(contactFiles);
-				contactsCollection.remove(idParam);
 
-				console.log(activitiesCollection.data);
-				console.log(contactsCollection.data);
+				contactsCollection.remove(idParam);
+				this.app.callEvent("onSelectFirstContact");
 			}
 		});
 	}
