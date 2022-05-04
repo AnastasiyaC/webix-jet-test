@@ -177,8 +177,8 @@ export default class ContactInfo extends JetView {
 				if (contactFiles.length) filesCollection.remove(contactFiles);
 				contactsCollection.remove(idParam);
 
-				console.log(activitiesCollection.data)
-				console.log(contactsCollection.data)
+				console.log(activitiesCollection.data);
+				console.log(contactsCollection.data);
 			}
 		});
 	}

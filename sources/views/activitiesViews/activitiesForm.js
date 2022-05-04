@@ -190,6 +190,21 @@ export default class ActivitiesForm extends JetView {
 		this._editMode = mode;
 		activeButton.define("label", activeButtonLabel);
 		activeButton.refresh();
+		this.setFormNameValue(mode);
+	}
+
+	setFormNameValue(mode) {
+		const modeParam = this.getParam("mode");
+		const idParam = this.getParam("id");
+		const nameCombo = this.$$("contact_combo");
+
+		if (modeParam === "name" && mode === "add") {
+			console.log('work', idParam)
+			const item = activitiesCollection.getItem(idParam);
+
+			nameCombo.setValue(item.value);
+			nameCombo.disable();
+		}
 	}
 
 	clearFormValidation() {

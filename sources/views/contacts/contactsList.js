@@ -66,6 +66,7 @@ export default class ContactsList extends JetView {
 
 			this.setParam("id", idParam, true);
 			list.select(idParam);
+			this.on(contactsCollection.data, "onStoreUpdated", () => list.select(idParam));
 		});
 
 		this.on(list, "onAfterSelect", id => this.show(`./contacts?id=${id}`));
@@ -82,7 +83,8 @@ export default class ContactsList extends JetView {
 		const list = this.$$("contacts_list");
 
 		// this.show("editor");
-		this.show("/top/settings");
+		// this.show("/top/settings");
+		this.app.callEvent("openContactForm");
 		list.unselectAll();
 	}
 }

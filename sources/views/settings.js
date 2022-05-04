@@ -1,6 +1,6 @@
 import {JetView} from "webix-jet";
 
-import ContactForm from "./contactsViews/contactForm";
+import ContactForm from "./contacts/contactForm";
 
 class Settings extends JetView {
 	config() {
