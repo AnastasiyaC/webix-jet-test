@@ -79,7 +79,7 @@
     align-items: center;
     overflow: hidden;
 }
-.button-contact-toolbar .webix_button {
+.button--border .webix_button {
     border: 1px solid black;
     border-radius: 5px;
 }
@@ -88,9 +88,19 @@
     grid-template-areas:
     "photo details" 
     "status .";
-    grid-template-columns: 200px auto;  
-    grid-template-rows: 200px 30px; 
+    grid-template-columns: 160px auto;  
+    grid-template-rows: 160px 25px; 
     grid-gap: 20px;
+}
+.label__form-label .webix_el_box{
+    font-size: 30px;
+}
+.template__form-photo .webix_template{
+    padding: 0;
+}
+.contact-form__photo{
+    height: inherit;
+    width: inherit;
 }
 .contact-name{
     font-size: 34px;
@@ -99,13 +109,16 @@
 .contact-info__photo{
     grid-area: photo;
 }
-.contact-info__image{
+.contact-info__image,
+.contact-form__image{
     height: 100%;
     width: 100%;
     object-fit: contain;
 }
+.contact-form__image{
+    object-position: left bottom;
+}
 .contact-info__status{
-    font-size: 20px;
     grid-area: status;
     align-self: center;
     justify-self: center;
@@ -118,7 +131,6 @@
     grid-gap: 22px;
 }
 .details__item {
-    font-size: 20px;
     display: flex;
     align-items: center;
     grid-gap: 6px;
@@ -134,14 +146,9 @@
         flex-wrap: nowrap;
         grid-gap: 22px;
     }
-    .details__item {
-        font-size: 16px;
-    }
 }
 @media screen and (max-width: 1024px) {
     .template--grid_contact-info .webix_template .contact-info{
-        grid-template-columns: 160px auto;  
-        grid-template-rows: 160px 30px; 
         grid-gap: 20px;
     }
     .contact-name{

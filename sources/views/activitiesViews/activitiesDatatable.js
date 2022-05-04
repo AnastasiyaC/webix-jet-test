@@ -6,6 +6,12 @@ import contactsCollection from "../../models/contacts";
 import ActivitiesModalWindow from "./ActivitiesModalWindow";
 
 export default class ActivitiesDatatable extends JetView {
+	constructor(app, hiddenColumn) {
+		super(app);
+		this._hiddenColumn = hiddenColumn;
+		this._setNameValueToForm = false;
+	}
+
 	config() {
 		const toolbar = {
 			view: "toolbar",
@@ -18,7 +24,7 @@ export default class ActivitiesDatatable extends JetView {
 					label: "Add activity",
 					type: "icon",
 					icon: "wxi-plus-square",
-					css: "webix_transparent button-contact-toolbar",
+					css: "webix_transparent button--border",
 					width: 150,
 					click: () => {
 						this.toggleAddActivity();
@@ -110,7 +116,7 @@ export default class ActivitiesDatatable extends JetView {
 			],
 			onClick: {
 				"wxi-trash": (e, id) => {
-					this.toggledeleteItem(id);
+					this.toggleDeleteItem(id);
 				},
 				"wxi-pencil": (e, id) => {
 					this.toggleEditActivity(id);
@@ -119,10 +125,14 @@ export default class ActivitiesDatatable extends JetView {
 		};
 
 		const ui = {
-			rows: [
-				toolbar,
-				datatable
-			]
+			rows: this._hiddenColumn ? [
+					datatable,
+					toolbar,
+				] :
+				[
+					toolbar,
+					datatable
+				]
 		};
 
 		return ui;
@@ -130,6 +140,12 @@ export default class ActivitiesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("activities_datatable");
+
+		if (this._hiddenColumn) {
+			datatable.hideColumn(this._hiddenColumn);
+			this._setNameValueToForm = this._hiddenColumn === "ContactID";
+		}
+
 		this.windowForm = this.ui(ActivitiesModalWindow);
 
 		webix.promise.all([
@@ -137,20 +153,31 @@ export default class ActivitiesDatatable extends JetView {
 			activityTypesCollection.waitData,
 			contactsCollection.waitData
 		]).then(() => {
+			const idParam = this.getParam("id");
+
 			datatable.parse(activitiesCollection);
+			if (idParam) this.filterByContactName(idParam);
 			this.on(activitiesCollection.data, "onStoreUpdated", () => datatable.filterByAll());
 		});
 	}
 
+	urlChange() {
+		const datatable = this.$$("activities_datatable");
+		const idParam = this.getParam("id");
+
+		datatable.filterByAll();
+		if (idParam) this.filterByContactName(idParam);
+	}
+
 	toggleAddActivity() {
-		this.windowForm.showWindow("");
+		this.windowForm.showWindow("", this._setNameValueToForm);
 	}
 
 	toggleEditActivity(id) {
-		this.windowForm.showWindow(id);
+		this.windowForm.showWindow(id, this._setNameValueToForm);
 	}
 
-	toggledeleteItem(id) {
+	toggleDeleteItem(id) {
 		webix.confirm({
 			title: "Delete...",
 			text: "Do you still want to delete this activity?",
@@ -167,5 +194,11 @@ export default class ActivitiesDatatable extends JetView {
 		date.setHours(0);
 		date.setMinutes(0);
 		return webix.Date.equal(date, filter);
+	}
+
+	filterByContactName(id) {
+		const datatable = this.$$("activities_datatable");
+
+		datatable.filter("#ContactID#", id, true);
 	}
 }

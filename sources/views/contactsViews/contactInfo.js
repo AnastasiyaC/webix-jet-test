@@ -1,8 +1,11 @@
 import {JetView} from "webix-jet";
 
 import userIcon from "../../assets/icons/icon-user.jpg";
+import activitiesCollection from "../../models/activities";
 import contactsCollection from "../../models/contacts";
+import filesCollection from "../../models/files";
 import statusesCollection from "../../models/statuses";
+import ContactData from "./contactData";
 
 export default class ContactInfo extends JetView {
 	config() {
@@ -15,16 +18,18 @@ export default class ContactInfo extends JetView {
 					label: "Delete",
 					type: "icon",
 					icon: "wxi-trash",
-					css: "webix_transparent button-contact-toolbar",
-					width: 110
+					css: "webix_transparent button--border",
+					width: 110,
+					click: () => this.toggleDeleteContact()
 				},
 				{
 					view: "button",
 					label: "Edit",
 					type: "icon",
 					icon: "wxi-pencil",
-					css: "webix_transparent button-contact-toolbar",
-					width: 110
+					css: "webix_transparent button--border",
+					width: 110,
+					click: () => this.toggleOpenContactForm()
 				}
 			]
 		};
@@ -96,14 +101,17 @@ export default class ContactInfo extends JetView {
 					</div>`;
 			},
 			localId: "template_contact-info",
-			css: "template--grid_contact-info"
+			css: "template--grid_contact-info",
+			height: 250
+			// autoheigth: true
 		};
 
 		const ui = {
 			type: "clean",
 			rows: [
 				toolbar,
-				contactInfoTemplate
+				contactInfoTemplate,
+				ContactData
 			]
 		};
 
@@ -131,6 +139,46 @@ export default class ContactInfo extends JetView {
 			else {
 				contactName.setValues({});
 				contactInfo.setValues({});
+			}
+		});
+	}
+
+	toggleOpenContactForm() {
+		// this.show("editor");
+		this.show("/top/settings");
+	}
+
+	toggleDeleteContact() {
+		const idParam = this.getParam("id");
+
+		webix.confirm({
+			title: "Delete...",
+			text: "Do you still want to delete this contact?",
+			ok: "Yes",
+			cancel: "No"
+		}).then(() => {
+			if (idParam) {
+				const contactActivities = [];
+				const contactFiles = [];
+
+				activitiesCollection.data.each((el) => {
+					if (el.ContactID === Number(idParam)) {
+						contactActivities.push(el.id);
+					}
+				});
+
+				filesCollection.data.each((el) => {
+					if (el.ContactID === Number(idParam)) {
+						contactFiles.push(el.id);
+					}
+				});
+
+				if (contactActivities.length) activitiesCollection.remove(contactActivities);
+				if (contactFiles.length) filesCollection.remove(contactFiles);
+				contactsCollection.remove(idParam);
+
+				console.log(activitiesCollection.data)
+				console.log(contactsCollection.data)
 			}
 		});
 	}

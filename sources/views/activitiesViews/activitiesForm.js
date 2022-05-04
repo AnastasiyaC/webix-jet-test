@@ -42,6 +42,7 @@ export default class ActivitiesForm extends JetView {
 				},
 				{
 					view: "combo",
+					localId: "contact_combo",
 					label: "Contact",
 					name: "ContactID",
 					options: contactsCollection
@@ -81,13 +82,14 @@ export default class ActivitiesForm extends JetView {
 							view: "button",
 							localId: "form_button-save",
 							value: this._editMode === "add" ? "Add" : "Save",
-							css: "webix_primary",
+							css: "webix_primary button--border",
 							width: 150,
 							click: () => this.toggleUpdateOrSave()
 						},
 						{
 							view: "button",
 							value: "Cancel",
+							css: "button--border",
 							width: 150,
 							click: () => this.toggleCancel()
 						}
@@ -159,6 +161,7 @@ export default class ActivitiesForm extends JetView {
 			contactsCollection.waitData
 		]).then(() => {
 			const idParam = this.getParam("id");
+			const modeParam = this.getParam("mode");
 			const form = this.$$("activities_edit-form");
 
 			if (idParam) {
@@ -172,6 +175,7 @@ export default class ActivitiesForm extends JetView {
 
 				this.setFormMode("save");
 				form.setValues(itemValues);
+				if (modeParam === "name") this.$$("contact_combo").disable();
 			}
 			else {
 				this.setFormMode("add");

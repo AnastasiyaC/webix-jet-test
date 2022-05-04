@@ -5,7 +5,7 @@ import contactsCollection from "../../models/contacts";
 
 export default class ContactsList extends JetView {
 	config() {
-		return {
+		const list = {
 			view: "list",
 			localId: "contacts_list",
 			css: "list-contact",
@@ -29,6 +29,25 @@ export default class ContactsList extends JetView {
 					</span>`,
 			select: true,
 			width: 300
+		};
+
+		const listAddContactButton = {
+			view: "button",
+			label: "Add contact",
+			type: "icon",
+			icon: "wxi-plus",
+			css: "webix_transparent button--border",
+			padding: 20,
+			margin: 20,
+			click: () => this.toggleOpenContactForm()
+		};
+
+		return {
+			type: "clean",
+			rows: [
+				list,
+				listAddContactButton
+			]
 		};
 	}
 
@@ -57,5 +76,13 @@ export default class ContactsList extends JetView {
 		const list = this.$$("contacts_list");
 
 		if (!idParam) list.unselectAll();
+	}
+
+	toggleOpenContactForm() {
+		const list = this.$$("contacts_list");
+
+		// this.show("editor");
+		this.show("/top/settings");
+		list.unselectAll();
 	}
 }

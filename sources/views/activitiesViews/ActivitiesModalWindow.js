@@ -24,13 +24,14 @@ export default class ActivitiesModalWindow extends JetView {
 		});
 	}
 
-	showWindow(id) {
+	showWindow(id, setName) {
 		const popupWindow = this.getRoot();
 
 		popupWindow.show();
 		popupWindow.getHead().setHTML(id ? "Edit activity" : "Add activity");
 
 		this.setParam("id", id, true);
+		if (setName) this.setParam("mode", "name", true);
 	}
 
 	hideWindow() {
