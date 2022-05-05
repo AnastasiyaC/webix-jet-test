@@ -44,7 +44,6 @@ export default class ContactFiliesDatatable extends JetView {
 
 		const updoadButton = {
 			view: "uploader",
-			localId: "uploadButton",
 			label: "Upload file",
 			type: "icon",
 			icon: "mdi mdi-cloud-upload",
@@ -67,19 +66,22 @@ export default class ContactFiliesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("files_datatable");
+		const contactId = this.getParam("cid");
 
 		datatable.sync(filesCollection);
+		this.filterByContactName(contactId);
 	}
 
 	urlChange() {
-		this.filterByContactName();
+		const contactId = this.getParam("cid");
+
+		this.filterByContactName(contactId);
 	}
 
-	filterByContactName() {
+	filterByContactName(id) {
 		const datatable = this.$$("files_datatable");
-		const idParam = this.getParam("id");
 
-		datatable.filter("#ContactID#", idParam, true);
+		datatable.filter("#ContactID#", id, true);
 	}
 
 	toggleDeleteFile(id) {
@@ -93,25 +95,26 @@ export default class ContactFiliesDatatable extends JetView {
 		});
 	}
 
-	sortFileSizes() {
+	sortFileSizes(a, b) {
+		a = a.Size;
+		b = b.Size;
 
+		return a >= b ? 1 : -1;
 	}
 
 	saveFile(obj) {
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("cid");
 		const dateFormat = webix.Date.dateToStr("%Y-%m-%d %H:%i");
-		console.log(obj.file);
 
 		const savedFile = {
-			ContactID: idParam,
+			ContactID: contactId,
 			Name: obj.file.name,
 			ChangeDate: obj.file.lastModifiedDate,
 			Size: obj.file.size,
 			SizeText: obj.sizetext
 		};
-		
+
 		savedFile.ChangeDate = dateFormat(savedFile.ChangeDate);
 		filesCollection.add(savedFile);
-		console.log(filesCollection.data);
 	}
 }

@@ -10,6 +10,7 @@ export default class ContactData extends JetView {
 			rows: [
 				{
 					view: "tabbar",
+					localId: "contact_tabbar",
 					value: "activities",
 					multiview: true,
 					options: [
@@ -28,13 +29,17 @@ export default class ContactData extends JetView {
 						{
 							id: "activities",
 							rows: [
-								ContactActivityDatateble
+								{
+									$subview: ContactActivityDatateble
+								}
 							]
 						},
 						{
 							id: "filies",
 							rows: [
-								ContactFiliesDatatable
+								{
+									$subview: ContactFiliesDatatable
+								}
 							]
 						}
 					]

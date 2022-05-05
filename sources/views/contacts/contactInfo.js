@@ -103,7 +103,6 @@ export default class ContactInfo extends JetView {
 			localId: "template_contact-info",
 			css: "template--grid_contact-info",
 			height: 250
-			// autoheigth: true
 		};
 
 		const ui = {
@@ -123,7 +122,7 @@ export default class ContactInfo extends JetView {
 	}
 
 	setContactInfo() {
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("cid");
 		const contactName = this.$$("template_contact-name");
 		const contactInfo = this.$$("template_contact-info");
 
@@ -131,8 +130,8 @@ export default class ContactInfo extends JetView {
 			contactsCollection.waitData,
 			statusesCollection.waitData
 		]).then(() => {
-			if (idParam) {
-				const item = contactsCollection.getItem(idParam);
+			if (contactId) {
+				const item = contactsCollection.getItem(contactId);
 				contactName.setValues(item);
 				contactInfo.setValues(item);
 			}
@@ -144,13 +143,13 @@ export default class ContactInfo extends JetView {
 	}
 
 	toggleOpenEditContactForm() {
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("cid");
 
-		this.app.callEvent("openEditContactForm", [idParam]);
+		this.app.callEvent("openEditContactForm", [contactId]);
 	}
 
 	toggleDeleteContact() {
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("cid");
 
 		webix.confirm({
 			title: "Delete...",
@@ -158,18 +157,18 @@ export default class ContactInfo extends JetView {
 			ok: "Yes",
 			cancel: "No"
 		}).then(() => {
-			if (idParam) {
+			if (contactId) {
 				const contactActivities = [];
 				const contactFiles = [];
 
 				activitiesCollection.data.each((el) => {
-					if (el.ContactID === Number(idParam)) {
+					if (el.ContactID === Number(contactId)) {
 						contactActivities.push(el.id);
 					}
 				});
 
 				filesCollection.data.each((el) => {
-					if (el.ContactID === Number(idParam)) {
+					if (el.ContactID === Number(contactId)) {
 						contactFiles.push(el.id);
 					}
 				});
@@ -177,7 +176,7 @@ export default class ContactInfo extends JetView {
 				if (contactActivities.length) activitiesCollection.remove(contactActivities);
 				if (contactFiles.length) filesCollection.remove(contactFiles);
 
-				contactsCollection.remove(idParam);
+				contactsCollection.remove(contactId);
 				this.app.callEvent("onSelectFirstContact");
 			}
 		});

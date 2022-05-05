@@ -143,6 +143,7 @@ export default class ContactForm extends JetView {
 			view: "form",
 			localId: "contact_form",
 			elementsConfig: {
+				labelWidth: 90,
 				on: {
 					onFocus: () => {
 						const name = this.config.name;
@@ -203,15 +204,12 @@ export default class ContactForm extends JetView {
 			contactsCollection.waitData,
 			statusesCollection.waitData
 		]).then(() => {
-			const idParam = this.getParam("id");
+			const contactId = this.getParam("cid");
 			const form = this.$$("contact_form");
 
-			if (idParam) {
-				const item = contactsCollection.getItem(idParam);
+			if (contactId) {
+				const item = contactsCollection.getItem(contactId);
 				const usersPhoto = this.$$("users_photo");
-
-				// item.Birthday = new Date(item.Birthday);
-				// item.StartDate = new Date(item.StartDate);
 
 				this.setFormMode("save");
 				form.setValues(item);
@@ -251,8 +249,7 @@ export default class ContactForm extends JetView {
 			if (this._editMode === "add") {
 				contactsCollection.add(values);
 				webix.message("Added new contact!");
-				// this.app.callEvent("openContactInfo", [contactsCollection.getLastId()]);
-				this.app.callEvent("onSelectLastContact");
+				this.app.callEvent("onSelectFirstContact");
 			}
 			else {
 				contactsCollection.updateItem(values.id, values);
@@ -282,10 +279,10 @@ export default class ContactForm extends JetView {
 
 	toggleCancel() {
 		const form = this.$$("contact_form");
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("cid");
 
 		form.clear();
-		if (idParam) this.app.callEvent("openContactInfo", [idParam]);
+		if (contactId) this.app.callEvent("openContactInfo", [contactId]);
 		else this.app.callEvent("onSelectFirstContact");
 	}
 

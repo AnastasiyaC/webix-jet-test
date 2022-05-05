@@ -95,14 +95,7 @@ export default class ActivitiesForm extends JetView {
 						}
 					]
 				}
-			],
-			rules: {
-				Details: webix.rules.isNotEmpty,
-				TypeID: webix.rules.isNotEmpty,
-				ContactID: webix.rules.isNotEmpty,
-				Date: webix.rules.isNotEmpty,
-				Time: webix.rules.isNotEmpty
-			}
+			]
 		};
 	}
 
@@ -121,7 +114,6 @@ export default class ActivitiesForm extends JetView {
 
 	toggleUpdateOrSave() {
 		const form = this.$$("activities_edit-form");
-		// const modeParam = this.getParam("mode");
 
 		if (form.validate()) {
 			const values = form.getValues();
@@ -149,8 +141,6 @@ export default class ActivitiesForm extends JetView {
 			form.clear();
 			this.app.callEvent("editor:close", []);
 			this.showCurrentPage();
-			// if (modeParam === "contact") this.app.callEvent("openContactInfo", [id]);
-			// this.show("/top/activities");
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
@@ -158,10 +148,10 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	showCurrentPage() {
-		const modeParam = this.getParam("mode");
+		const contactId = this.getParam("cid");
 
-		if (modeParam === "contact") {
-			this.app.callEvent("openContactInfo", [this.contactId]);
+		if (contactId) {
+			this.app.callEvent("openContactInfo", [contactId]);
 			return;
 		}
 
@@ -174,12 +164,13 @@ export default class ActivitiesForm extends JetView {
 			activityTypesCollection.waitData,
 			contactsCollection.waitData
 		]).then(() => {
-			const idParam = this.getParam("id");
-			const modeParam = this.getParam("mode");
+			const activityId = this.getParam("aid");
+			const contactId = this.getParam("cid");
 			const form = this.$$("activities_edit-form");
+			const contactCombo = this.$$("contact_combo");
 
-			if (idParam) {
-				const item = activitiesCollection.getItem(idParam);
+			if (activityId) {
+				const item = activitiesCollection.getItem(activityId);
 				const dateAndTime = new Date(item.DueDate);
 				const itemValues = {
 					...item,
@@ -187,13 +178,17 @@ export default class ActivitiesForm extends JetView {
 					Time: dateAndTime
 				};
 
-				this.contactId = item.ContactID;
 				this.setFormMode("save");
 				form.setValues(itemValues);
-				if (modeParam === "contact") this.$$("contact_combo").disable();
+				if (contactId) contactCombo.disable();
 			}
+
 			else {
 				form.clear();
+				if (contactId) {
+					contactCombo.setValue(contactId);
+					contactCombo.disable();
+				}
 				this.setFormMode("add");
 			}
 		});
@@ -207,20 +202,6 @@ export default class ActivitiesForm extends JetView {
 		activeButton.define("label", activeButtonLabel);
 		activeButton.refresh();
 	}
-
-	// setFormNameValue(mode) {
-	// 	const modeParam = this.getParam("mode");
-	// 	const idParam = this.getParam("id");
-	// 	const nameCombo = this.$$("contact_combo");
-
-	// 	if (modeParam === "name" && mode === "add") {
-	// 		console.log('work', idParam)
-	// 		const item = activitiesCollection.getItem(idParam);
-
-	// 		nameCombo.setValue(item.value);
-	// 		nameCombo.disable();
-	// 	}
-	// }
 
 	clearFormValidation() {
 		const form = this.$$("activities_edit-form");

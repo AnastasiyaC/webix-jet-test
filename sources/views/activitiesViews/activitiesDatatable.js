@@ -9,7 +9,6 @@ export default class ActivitiesDatatable extends JetView {
 	constructor(app, hiddenColumn) {
 		super(app);
 		this._hiddenColumn = hiddenColumn;
-		this._setNameValueToForm = false;
 	}
 
 	config() {
@@ -153,33 +152,32 @@ export default class ActivitiesDatatable extends JetView {
 			activityTypesCollection.waitData,
 			contactsCollection.waitData
 		]).then(() => {
-			const idParam = this.getParam("id");
+			const contactId = this.getParam("cid");
 
 			datatable.parse(activitiesCollection);
-			if (idParam) this.filterByContactName(idParam);
+			if (contactId) this.filterByContactName(contactId);
 
 			this.on(activitiesCollection.data, "onStoreUpdated", () => {
-				
-				datatable.filterByAll()
-				if (idParam) this.filterByContactName(idParam);
+				datatable.filterByAll();
+				if (contactId) this.filterByContactName(contactId);
 			});
 		});
 	}
 
 	urlChange() {
 		const datatable = this.$$("activities_datatable");
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("cid");
 
 		datatable.filterByAll();
-		if (idParam) this.filterByContactName(idParam);
+		if (contactId) this.filterByContactName(contactId);
 	}
 
 	toggleAddActivity() {
-		this.windowForm.showWindow("", this._setNameValueToForm);
+		this.windowForm.showWindow("");
 	}
 
 	toggleEditActivity(id) {
-		this.windowForm.showWindow(id, this._setNameValueToForm);
+		this.windowForm.showWindow(id);
 	}
 
 	toggleDeleteItem(id) {
