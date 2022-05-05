@@ -109,7 +109,7 @@ export default class ActivitiesForm extends JetView {
 		form.clear();
 		form.clearValidation();
 		this.app.callEvent("editor:close", []);
-		this.show("/top/activities");
+		this.showCurrentPage();
 	}
 
 	toggleUpdateOrSave() {
