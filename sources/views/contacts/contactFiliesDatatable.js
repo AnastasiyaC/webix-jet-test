@@ -27,7 +27,7 @@ export default class ContactFiliesDatatable extends JetView {
 				{
 					id: "SizeText",
 					header: "Size",
-					sort: this.sortFileSizes,
+					sort: this.sortByFileSizes,
 					width: 100
 				},
 				{
@@ -52,7 +52,8 @@ export default class ContactFiliesDatatable extends JetView {
 			align: "center",
 			autosend: false,
 			on: {
-				onAfterFileAdd: obj => this.saveFile(obj)
+				onAfterFileAdd: obj => this.saveFile(obj),
+				onFileUploadError: () => this.showErrorMessage()
 			}
 		};
 
@@ -79,9 +80,7 @@ export default class ContactFiliesDatatable extends JetView {
 	}
 
 	filterByContactName(id) {
-		const datatable = this.$$("files_datatable");
-
-		datatable.filter("#ContactID#", id, true);
+		filesCollection.filter(obj => obj.ContactID === id);
 	}
 
 	toggleDeleteFile(id) {
@@ -95,7 +94,7 @@ export default class ContactFiliesDatatable extends JetView {
 		});
 	}
 
-	sortFileSizes(a, b) {
+	sortByFileSizes(a, b) {
 		a = a.Size;
 		b = b.Size;
 
@@ -116,5 +115,9 @@ export default class ContactFiliesDatatable extends JetView {
 
 		savedFile.ChangeDate = dateFormat(savedFile.ChangeDate);
 		filesCollection.add(savedFile);
+	}
+
+	showErrorMessage() {
+		webix.message("Error during file upload...");
 	}
 }
