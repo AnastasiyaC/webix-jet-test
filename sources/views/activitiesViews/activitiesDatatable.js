@@ -157,7 +157,12 @@ export default class ActivitiesDatatable extends JetView {
 
 			datatable.parse(activitiesCollection);
 			if (idParam) this.filterByContactName(idParam);
-			this.on(activitiesCollection.data, "onStoreUpdated", () => datatable.filterByAll());
+
+			this.on(activitiesCollection.data, "onStoreUpdated", () => {
+				
+				datatable.filterByAll()
+				if (idParam) this.filterByContactName(idParam);
+			});
 		});
 	}
 

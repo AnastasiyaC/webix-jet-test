@@ -31,7 +31,7 @@ export default class ActivitiesModalWindow extends JetView {
 		popupWindow.getHead().setHTML(id ? "Edit activity" : "Add activity");
 
 		this.setParam("id", id, true);
-		if (setName) this.setParam("mode", "name", true);
+		if (setName) this.setParam("mode", "contact", true);
 	}
 
 	hideWindow() {

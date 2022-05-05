@@ -121,7 +121,7 @@ export default class ActivitiesForm extends JetView {
 
 	toggleUpdateOrSave() {
 		const form = this.$$("activities_edit-form");
-		const modeParam = this.getParam("mode");
+		// const modeParam = this.getParam("mode");
 
 		if (form.validate()) {
 			const values = form.getValues();
@@ -148,12 +148,24 @@ export default class ActivitiesForm extends JetView {
 
 			form.clear();
 			this.app.callEvent("editor:close", []);
-			if (modeParam === "name") this.app.callEvent("openContactInfo", [id]);
+			this.showCurrentPage();
+			// if (modeParam === "contact") this.app.callEvent("openContactInfo", [id]);
 			// this.show("/top/activities");
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
 		}
+	}
+
+	showCurrentPage() {
+		const modeParam = this.getParam("mode");
+
+		if (modeParam === "contact") {
+			this.app.callEvent("openContactInfo", [this.contactId]);
+			return;
+		}
+
+		this.show("/top/activities");
 	}
 
 	setFormValues() {
@@ -175,11 +187,13 @@ export default class ActivitiesForm extends JetView {
 					Time: dateAndTime
 				};
 
+				this.contactId = item.ContactID;
 				this.setFormMode("save");
 				form.setValues(itemValues);
-				if (modeParam === "name") this.$$("contact_combo").disable();
+				if (modeParam === "contact") this.$$("contact_combo").disable();
 			}
 			else {
+				form.clear();
 				this.setFormMode("add");
 			}
 		});
