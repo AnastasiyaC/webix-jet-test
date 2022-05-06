@@ -22,7 +22,7 @@ export default class ActivitiesModalWindow extends JetView {
 		this.on(this.app, "editor:close", () => {
 			this.hideWindow();
 
-			this.setParam("aid", "0", true);
+			this.setParam("activityId", "0", true);
 		});
 	}
 
@@ -32,7 +32,7 @@ export default class ActivitiesModalWindow extends JetView {
 		popupWindow.show();
 		popupWindow.getHead().setHTML(id ? "Edit activity" : "Add activity");
 
-		this.setParam("aid", id, true);
+		this.setParam("activityId", id, true);
 	}
 
 	hideWindow() {

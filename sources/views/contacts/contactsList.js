@@ -60,7 +60,8 @@ export default class ContactsList extends JetView {
 			const listFirstId = list.getFirstId();
 
 			if (!listFirstId) {
-				this.app.callEvent("contactEmptyInfo");
+				this.app.callEvent("openContactInfo");
+				list.unselectAll();
 				return;
 			}
 
@@ -71,12 +72,17 @@ export default class ContactsList extends JetView {
 			this.app.callEvent("openContactInfo", [id]);
 		});
 		this.on(this.app, "onSelectFirstContact", () => list.select(list.getFirstId()));
+		this.on(this.app, "onSelectContact", id => list.select(id));
+		this.on(this.app, "onUnselectContactList", () => {
+			list.unselectAll();
+			this.app.callEvent("openContactInfo");
+		});
 	}
 
 	toggleOpenAddContactForm() {
 		const list = this.$$("contacts_list");
 
-		this.app.callEvent("openAddContactForm");
+		this.app.callEvent("openContactForm");
 		list.unselectAll();
 	}
 }

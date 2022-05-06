@@ -1,6 +1,6 @@
 import {JetView} from "webix-jet";
 
-import ActivitiesDatatable from "../activitiesViews/activitiesDatatable";
+import ActivitiesDatatable from "../commonViews/activitiesDatatable";
 
 export default class ContactActivityDatateble extends JetView {
 	config() {

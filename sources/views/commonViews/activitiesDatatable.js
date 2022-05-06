@@ -3,7 +3,7 @@ import {JetView} from "webix-jet";
 import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
-import ActivitiesModalWindow from "./ActivitiesModalWindow";
+import ActivitiesModalWindow from "./activitiesModalWindow";
 
 export default class ActivitiesDatatable extends JetView {
 	constructor(app, hiddenColumn) {
@@ -61,7 +61,7 @@ export default class ActivitiesDatatable extends JetView {
 					template: (obj) => {
 						const activityType = activityTypesCollection.getItem(obj.TypeID);
 
-						return activityType?.Value || "activity not found";
+						return activityType ? activityType.Value : "activity not found";
 					}
 				},
 				{
@@ -97,7 +97,7 @@ export default class ActivitiesDatatable extends JetView {
 					template: (obj) => {
 						const contact = contactsCollection.getItem(obj.ContactID);
 
-						return contact?.value || "activity not found";
+						return contact ? contact.value : "contact not found";
 					}
 				},
 				{
@@ -125,9 +125,9 @@ export default class ActivitiesDatatable extends JetView {
 
 		const ui = {
 			rows: this._hiddenColumn ? [
-					datatable,
-					toolbar,
-				] :
+				datatable,
+				toolbar
+			] :
 				[
 					toolbar,
 					datatable
@@ -142,7 +142,6 @@ export default class ActivitiesDatatable extends JetView {
 
 		if (this._hiddenColumn) {
 			datatable.hideColumn(this._hiddenColumn);
-			this._setNameValueToForm = this._hiddenColumn === "ContactID";
 		}
 
 		this.windowForm = this.ui(ActivitiesModalWindow);
@@ -152,24 +151,21 @@ export default class ActivitiesDatatable extends JetView {
 			activityTypesCollection.waitData,
 			contactsCollection.waitData
 		]).then(() => {
-			const contactId = this.getParam("cid");
-
 			datatable.parse(activitiesCollection);
-			if (contactId) this.filterByContactName(contactId);
+			this.filterByContactName();
 
 			this.on(activitiesCollection.data, "onStoreUpdated", () => {
 				datatable.filterByAll();
-				if (contactId) this.filterByContactName(contactId);
 			});
 		});
+		this.on(datatable, "onAfterFilter", () => this.filterByContactName());
 	}
 
 	urlChange() {
 		const datatable = this.$$("activities_datatable");
-		const contactId = this.getParam("cid");
 
 		datatable.filterByAll();
-		if (contactId) this.filterByContactName(contactId);
+		this.filterByContactName();
 	}
 
 	toggleAddActivity() {
@@ -199,9 +195,10 @@ export default class ActivitiesDatatable extends JetView {
 		return webix.Date.equal(date, filter);
 	}
 
-	filterByContactName(id) {
+	filterByContactName() {
 		const datatable = this.$$("activities_datatable");
+		const contactId = this.getParam("contactId");
 
-		datatable.filter("#ContactID#", id, true);
+		if (contactId) datatable.filter("#ContactID#", contactId, true);
 	}
 }

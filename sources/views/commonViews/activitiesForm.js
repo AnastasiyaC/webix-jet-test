@@ -95,8 +95,25 @@ export default class ActivitiesForm extends JetView {
 						}
 					]
 				}
-			]
+			],
+			rules: {
+				Details: webix.rules.isNotEmpty,
+				TypeID: webix.rules.isNotEmpty,
+				ContactID: webix.rules.isNotEmpty,
+				Date: webix.rules.isNotEmpty,
+				Time: webix.rules.isNotEmpty
+			}
 		};
+	}
+
+	init() {
+		webix.promise.all([
+			activitiesCollection.waitData,
+			activityTypesCollection.waitData,
+			contactsCollection.waitData
+		]).then(() => {
+			this.setFormValues();
+		});
 	}
 
 	urlChange() {
@@ -148,7 +165,7 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	showCurrentPage() {
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 
 		if (contactId) {
 			this.app.callEvent("openContactInfo", [contactId]);
@@ -159,39 +176,33 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	setFormValues() {
-		webix.promise.all([
-			activitiesCollection.waitData,
-			activityTypesCollection.waitData,
-			contactsCollection.waitData
-		]).then(() => {
-			const activityId = this.getParam("aid");
-			const contactId = this.getParam("cid");
-			const form = this.$$("activities_edit-form");
-			const contactCombo = this.$$("contact_combo");
+		const activityId = this.getParam("activityId");
+		const contactId = this.getParam("contactId");
+		const form = this.$$("activities_edit-form");
+		const contactCombo = this.$$("contact_combo");
 
-			if (activityId) {
-				const item = activitiesCollection.getItem(activityId);
-				const dateAndTime = new Date(item.DueDate);
-				const itemValues = {
-					...item,
-					Date: dateAndTime,
-					Time: dateAndTime
-				};
+		if (activityId) {
+			const item = activitiesCollection.getItem(activityId);
+			const dateAndTime = new Date(item.DueDate);
+			const itemValues = {
+				...item,
+				Date: dateAndTime,
+				Time: dateAndTime
+			};
 
-				this.setFormMode("save");
-				form.setValues(itemValues);
-				if (contactId) contactCombo.disable();
+			this.setFormMode("save");
+			form.setValues(itemValues);
+			if (contactId) contactCombo.disable();
+		}
+
+		else {
+			form.clear();
+			if (contactId) {
+				contactCombo.setValue(contactId);
+				contactCombo.disable();
 			}
-
-			else {
-				form.clear();
-				if (contactId) {
-					contactCombo.setValue(contactId);
-					contactCombo.disable();
-				}
-				this.setFormMode("add");
-			}
-		});
+			this.setFormMode("add");
+		}
 	}
 
 	setFormMode(mode) {

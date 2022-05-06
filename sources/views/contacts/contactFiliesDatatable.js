@@ -67,14 +67,14 @@ export default class ContactFiliesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("files_datatable");
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 
 		datatable.sync(filesCollection);
 		this.filterByContactName(contactId);
 	}
 
 	urlChange() {
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 
 		this.filterByContactName(contactId);
 	}
@@ -102,8 +102,7 @@ export default class ContactFiliesDatatable extends JetView {
 	}
 
 	saveFile(obj) {
-		const contactId = this.getParam("cid");
-		const dateFormat = webix.Date.dateToStr("%Y-%m-%d %H:%i");
+		const contactId = this.getParam("contactId");
 
 		const savedFile = {
 			ContactID: contactId,
@@ -113,7 +112,6 @@ export default class ContactFiliesDatatable extends JetView {
 			SizeText: obj.sizetext
 		};
 
-		savedFile.ChangeDate = dateFormat(savedFile.ChangeDate);
 		filesCollection.add(savedFile);
 	}
 

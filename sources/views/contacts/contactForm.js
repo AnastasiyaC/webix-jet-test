@@ -5,16 +5,10 @@ import contactsCollection from "../../models/contacts";
 import statusesCollection from "../../models/statuses";
 
 export default class ContactForm extends JetView {
-	constructor(app) {
-		super(app);
-		this._editMode = "add";
-	}
-
 	config() {
 		const formLabel = {
 			view: "label",
 			localId: "contact-form_label",
-			label: this._editMode === "add" ? "Add new contact" : "Edit contact",
 			css: "label__form-label"
 		};
 
@@ -132,7 +126,6 @@ export default class ContactForm extends JetView {
 			{
 				view: "button",
 				localId: "form_button-save",
-				label: this._editMode === "add" ? "Add" : "Save",
 				css: "webix_primary button--border",
 				width: 150,
 				click: () => this.toggleUpdateOrSaveContact()
@@ -195,30 +188,35 @@ export default class ContactForm extends JetView {
 		};
 	}
 
+	init() {
+		webix.promise.all([
+			contactsCollection.waitData,
+			statusesCollection.waitData
+		]).then(() => {
+			this.setFormValues();
+		});
+	}
+
 	urlChange() {
 		this.setFormValues();
 	}
 
 	setFormValues() {
-		webix.promise.all([
-			contactsCollection.waitData,
-			statusesCollection.waitData
-		]).then(() => {
-			const contactId = this.getParam("cid");
-			const form = this.$$("contact_form");
+		const contactId = this.getParam("contactId");
+		const form = this.$$("contact_form");
 
-			if (contactId) {
-				const item = contactsCollection.getItem(contactId);
-				const usersPhoto = this.$$("users_photo");
+		if (contactId) {
+			const item = contactsCollection.getItem(contactId);
+			const usersPhoto = this.$$("users_photo");
 
-				this.setFormMode("save");
-				form.setValues(item);
-				usersPhoto.setValues({Photo: item.Photo});
-			}
-			else {
-				this.setFormMode("add");
-			}
-		});
+			this.setFormMode("save");
+			form.setValues(item);
+			usersPhoto.setValues({Photo: item.Photo});
+		}
+		else {
+			form.clear();
+			this.setFormMode("add");
+		}
 	}
 
 	setFormMode(mode) {
@@ -247,9 +245,11 @@ export default class ContactForm extends JetView {
 			values.StartDate = dateFormat(values.StartDate);
 
 			if (this._editMode === "add") {
-				contactsCollection.add(values);
+				contactsCollection.waitSave(() => contactsCollection.add(values))
+					.then((obj) => {
+						this.app.callEvent("onSelectContact", [obj.id]);
+					});
 				webix.message("Added new contact!");
-				this.app.callEvent("onSelectFirstContact");
 			}
 			else {
 				contactsCollection.updateItem(values.id, values);
@@ -279,7 +279,7 @@ export default class ContactForm extends JetView {
 
 	toggleCancel() {
 		const form = this.$$("contact_form");
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 
 		form.clear();
 		if (contactId) this.app.callEvent("openContactInfo", [contactId]);

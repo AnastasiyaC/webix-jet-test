@@ -15,9 +15,13 @@ export default class ContactsView extends JetView {
 	}
 
 	init() {
-		this.on(this.app, "openContactInfo", id => this.show(`./contacts.contactInfo?cid=${id}`));
-		this.on(this.app, "openAddContactForm", () => this.show("./contacts.contactForm"));
-		this.on(this.app, "openEditContactForm", id => this.show(`./contacts.contactForm?cid=${id}`));
-		this.on(this.app, "contactEmptyInfo", () => this.show("./contacts.contactEmptyInfo"));
+		this.on(this.app, "openContactInfo", (id) => {
+			if (id) this.show(`./contacts.contactInfo?contactId=${id}`);
+			else this.show("./contacts.contactEmptyInfo");
+		});
+		this.on(this.app, "openContactForm", (id) => {
+			if (id) this.show(`./contacts.contactForm?contactId=${id}`);
+			else this.show("./contacts.contactForm");
+		});
 	}
 }

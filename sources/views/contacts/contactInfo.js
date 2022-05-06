@@ -105,8 +105,9 @@ export default class ContactInfo extends JetView {
 			height: 250
 		};
 
-		const ui = {
+		const contactInfo = {
 			type: "clean",
+			localId: "contact-info",
 			rows: [
 				toolbar,
 				contactInfoTemplate,
@@ -114,7 +115,16 @@ export default class ContactInfo extends JetView {
 			]
 		};
 
-		return ui;
+		return contactInfo;
+	}
+
+	init() {
+		webix.promise.all([
+			contactsCollection.waitData,
+			statusesCollection.waitData
+		]).then(() => {
+			this.setContactInfo();
+		});
 	}
 
 	urlChange() {
@@ -122,34 +132,29 @@ export default class ContactInfo extends JetView {
 	}
 
 	setContactInfo() {
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 		const contactName = this.$$("template_contact-name");
 		const contactInfo = this.$$("template_contact-info");
 
-		webix.promise.all([
-			contactsCollection.waitData,
-			statusesCollection.waitData
-		]).then(() => {
-			if (contactId) {
-				const item = contactsCollection.getItem(contactId);
-				contactName.setValues(item);
-				contactInfo.setValues(item);
-			}
-			else {
-				contactName.setValues({});
-				contactInfo.setValues({});
-			}
-		});
+		if (contactId) {
+			const item = contactsCollection.getItem(contactId);
+
+			contactName.setValues(item);
+			contactInfo.setValues(item);
+		}
+		else {
+			this.app.callEvent("onUnselectContactList");
+		}
 	}
 
 	toggleOpenEditContactForm() {
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 
-		this.app.callEvent("openEditContactForm", [contactId]);
+		this.app.callEvent("openContactForm", [contactId]);
 	}
 
 	toggleDeleteContact() {
-		const contactId = this.getParam("cid");
+		const contactId = this.getParam("contactId");
 
 		webix.confirm({
 			title: "Delete...",
