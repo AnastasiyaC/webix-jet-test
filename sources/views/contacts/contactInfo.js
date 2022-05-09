@@ -115,7 +115,29 @@ export default class ContactInfo extends JetView {
 			]
 		};
 
-		return contactInfo;
+		const empty = {
+			template: "Contact is not selected..."
+		};
+
+		const ui = {
+			cells: [
+				{
+					id: "contact-info",
+					rows: [
+						contactInfo
+					]
+				},
+				{
+					id: "empty-info",
+					rows: [
+						empty
+					]
+				}
+			],
+			animate: false
+		};
+
+		return ui;
 	}
 
 	init() {
@@ -141,9 +163,11 @@ export default class ContactInfo extends JetView {
 
 			contactName.setValues(item);
 			contactInfo.setValues(item);
+			this.$$("contact-info").show();
 		}
 		else {
 			this.app.callEvent("onUnselectContactList");
+			this.$$("empty-info").show();
 		}
 	}
 

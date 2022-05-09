@@ -114,10 +114,8 @@ export default class ActivitiesForm extends JetView {
 		]).then(() => {
 			this.setFormValues();
 		});
-	}
 
-	urlChange() {
-		this.setFormValues();
+		this.on(this.app, "setFormValue", () => this.setFormValues());
 	}
 
 	toggleCancel() {
@@ -125,7 +123,7 @@ export default class ActivitiesForm extends JetView {
 
 		form.clear();
 		form.clearValidation();
-		this.app.callEvent("editor:close", []);
+		this.app.callEvent("editor:close");
 		this.showCurrentPage();
 	}
 
@@ -156,7 +154,7 @@ export default class ActivitiesForm extends JetView {
 			}
 
 			form.clear();
-			this.app.callEvent("editor:close", []);
+			this.app.callEvent("editor:close");
 			this.showCurrentPage();
 		}
 		else {
@@ -176,8 +174,9 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	setFormValues() {
-		const activityId = this.getParam("activityId");
-		const contactId = this.getParam("contactId");
+		const params = this.getUrl()[0].params;
+		const activityId = params.activityId;
+		const contactId = params.contactId;
 		const form = this.$$("activities_edit-form");
 		const contactCombo = this.$$("contact_combo");
 

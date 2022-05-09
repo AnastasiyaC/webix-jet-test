@@ -73,10 +73,7 @@ export default class ContactsList extends JetView {
 		});
 		this.on(this.app, "onSelectFirstContact", () => list.select(list.getFirstId()));
 		this.on(this.app, "onSelectContact", id => list.select(id));
-		this.on(this.app, "onUnselectContactList", () => {
-			list.unselectAll();
-			this.app.callEvent("openContactInfo");
-		});
+		this.on(this.app, "onUnselectContactList", () => list.unselectAll());
 	}
 
 	toggleOpenAddContactForm() {
