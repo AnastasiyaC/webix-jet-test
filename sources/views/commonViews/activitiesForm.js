@@ -163,7 +163,8 @@ export default class ActivitiesForm extends JetView {
 	}
 
 	showCurrentPage() {
-		const contactId = this.getParam("contactId");
+		const params = this.getUrl()[0].params;
+		const contactId = params.contactId;
 
 		if (contactId) {
 			this.app.callEvent("openContactInfo", [contactId]);
