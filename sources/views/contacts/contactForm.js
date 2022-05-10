@@ -12,8 +12,9 @@ export default class ContactForm extends JetView {
 			css: "label__form-label"
 		};
 
-		const formElements = {
-			colOne: [
+		const formFirstColumn = {
+			margin: 10,
+			rows: [
 				{
 					...this.formTextElement("First name", "FirstName"),
 					required: true
@@ -50,8 +51,12 @@ export default class ContactForm extends JetView {
 					required: true,
 					height: 65
 				}
-			],
-			colTwo: [
+			]
+		};
+
+		const formSecondColumn = {
+			margin: 10,
+			rows: [
 				{
 					...this.formTextElement("Email", "Email"),
 					required: true
@@ -76,12 +81,12 @@ export default class ContactForm extends JetView {
 								const defaultUsersPhoto = userIcon;
 
 								return `
-                                    <div class="contact-form__photo">
-                                        <img 
-                                            src=${obj.Photo || defaultUsersPhoto}
-                                            class="contact-form__image"
-                                            alt="contact-image">
-                                    </div>`;
+								<div class="contact-form__photo">
+									<img 
+										src=${obj.Photo || defaultUsersPhoto}
+										class="contact-form__image"
+										alt="contact-image">
+								</div>`;
 							},
 							localId: "users_photo",
 							css: "template__form-photo",
@@ -154,17 +159,11 @@ export default class ContactForm extends JetView {
 				},
 				{
 					cols: [
-						{
-							margin: 10,
-							rows: [...formElements.colOne]
-						},
+						formFirstColumn,
 						{
 							gravity: 0.1
 						},
-						{
-							margin: 10,
-							rows: [...formElements.colTwo]
-						}
+						formSecondColumn
 					]
 				},
 				{ },
