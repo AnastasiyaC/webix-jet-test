@@ -91,7 +91,7 @@ export default class ActivitiesForm extends JetView {
 							value: "Cancel",
 							css: "button--border",
 							width: 150,
-							click: () => this.toggleCancel()
+							click: () => this.toggleCloseForm()
 						}
 					]
 				}
@@ -112,13 +112,11 @@ export default class ActivitiesForm extends JetView {
 			activityTypesCollection.waitData,
 			contactsCollection.waitData
 		]).then(() => {
-			this.setFormValues();
+			this.on(this.app, "setFormValue", () => this.setFormValues());
 		});
-
-		this.on(this.app, "setFormValue", () => this.setFormValues());
 	}
 
-	toggleCancel() {
+	toggleCloseForm() {
 		const form = this.$$("activities_edit-form");
 
 		form.clear();
@@ -153,9 +151,7 @@ export default class ActivitiesForm extends JetView {
 				webix.message("Activity was updated!");
 			}
 
-			form.clear();
-			this.app.callEvent("editor:close");
-			this.showCurrentPage();
+			this.toggleCloseForm();
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
