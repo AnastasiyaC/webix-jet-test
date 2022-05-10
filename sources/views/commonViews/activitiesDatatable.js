@@ -3,9 +3,14 @@ import {JetView} from "webix-jet";
 import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
-import ActivitiesModalWindow from "./ActivitiesModalWindow";
+import ActivitiesModalWindow from "./activitiesModalWindow";
 
 export default class ActivitiesDatatable extends JetView {
+	constructor(app, hiddenColumn) {
+		super(app);
+		this._hiddenColumn = hiddenColumn;
+	}
+
 	config() {
 		const toolbar = {
 			view: "toolbar",
@@ -18,7 +23,7 @@ export default class ActivitiesDatatable extends JetView {
 					label: "Add activity",
 					type: "icon",
 					icon: "wxi-plus-square",
-					css: "webix_transparent button-contact-toolbar",
+					css: "webix_transparent button--border",
 					width: 150,
 					click: () => {
 						this.toggleAddActivity();
@@ -56,7 +61,7 @@ export default class ActivitiesDatatable extends JetView {
 					template: (obj) => {
 						const activityType = activityTypesCollection.getItem(obj.TypeID);
 
-						return activityType?.Value || "activity not found";
+						return activityType ? activityType.Value : "activity not found";
 					}
 				},
 				{
@@ -92,7 +97,7 @@ export default class ActivitiesDatatable extends JetView {
 					template: (obj) => {
 						const contact = contactsCollection.getItem(obj.ContactID);
 
-						return contact?.value || "activity not found";
+						return contact ? contact.value : "contact not found";
 					}
 				},
 				{
@@ -110,7 +115,7 @@ export default class ActivitiesDatatable extends JetView {
 			],
 			onClick: {
 				"wxi-trash": (e, id) => {
-					this.toggledeleteItem(id);
+					this.toggleDeleteItem(id);
 				},
 				"wxi-pencil": (e, id) => {
 					this.toggleEditActivity(id);
@@ -119,10 +124,14 @@ export default class ActivitiesDatatable extends JetView {
 		};
 
 		const ui = {
-			rows: [
-				toolbar,
-				datatable
-			]
+			rows: this._hiddenColumn ? [
+				datatable,
+				toolbar
+			] :
+				[
+					toolbar,
+					datatable
+				]
 		};
 
 		return ui;
@@ -130,6 +139,11 @@ export default class ActivitiesDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("activities_datatable");
+
+		if (this._hiddenColumn) {
+			datatable.hideColumn(this._hiddenColumn);
+		}
+
 		this.windowForm = this.ui(ActivitiesModalWindow);
 
 		webix.promise.all([
@@ -138,8 +152,20 @@ export default class ActivitiesDatatable extends JetView {
 			contactsCollection.waitData
 		]).then(() => {
 			datatable.parse(activitiesCollection);
-			this.on(activitiesCollection.data, "onStoreUpdated", () => datatable.filterByAll());
+			this.filterByContactName();
+
+			this.on(activitiesCollection.data, "onStoreUpdated", () => {
+				datatable.filterByAll();
+			});
 		});
+		this.on(datatable, "onAfterFilter", () => this.filterByContactName());
+	}
+
+	urlChange() {
+		const datatable = this.$$("activities_datatable");
+
+		datatable.filterByAll();
+		this.filterByContactName();
 	}
 
 	toggleAddActivity() {
@@ -150,7 +176,7 @@ export default class ActivitiesDatatable extends JetView {
 		this.windowForm.showWindow(id);
 	}
 
-	toggledeleteItem(id) {
+	toggleDeleteItem(id) {
 		webix.confirm({
 			title: "Delete...",
 			text: "Do you still want to delete this activity?",
@@ -167,5 +193,12 @@ export default class ActivitiesDatatable extends JetView {
 		date.setHours(0);
 		date.setMinutes(0);
 		return webix.Date.equal(date, filter);
+	}
+
+	filterByContactName() {
+		const datatable = this.$$("activities_datatable");
+		const contactId = this.getParam("contactId");
+
+		if (contactId) datatable.filter("#ContactID#", contactId, true);
 	}
 }

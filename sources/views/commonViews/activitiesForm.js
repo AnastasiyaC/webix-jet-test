@@ -42,6 +42,7 @@ export default class ActivitiesForm extends JetView {
 				},
 				{
 					view: "combo",
+					localId: "contact_combo",
 					label: "Contact",
 					name: "ContactID",
 					options: contactsCollection
@@ -81,15 +82,16 @@ export default class ActivitiesForm extends JetView {
 							view: "button",
 							localId: "form_button-save",
 							value: this._editMode === "add" ? "Add" : "Save",
-							css: "webix_primary",
+							css: "webix_primary button--border",
 							width: 150,
 							click: () => this.toggleUpdateOrSave()
 						},
 						{
 							view: "button",
 							value: "Cancel",
+							css: "button--border",
 							width: 150,
-							click: () => this.toggleCancel()
+							click: () => this.toggleCloseForm()
 						}
 					]
 				}
@@ -104,17 +106,23 @@ export default class ActivitiesForm extends JetView {
 		};
 	}
 
-	urlChange() {
-		this.setFormValues();
+	init() {
+		webix.promise.all([
+			activitiesCollection.waitData,
+			activityTypesCollection.waitData,
+			contactsCollection.waitData
+		]).then(() => {
+			this.on(this.app, "setFormValue", () => this.setFormValues());
+		});
 	}
 
-	toggleCancel() {
+	toggleCloseForm() {
 		const form = this.$$("activities_edit-form");
 
 		form.clear();
 		form.clearValidation();
-		this.app.callEvent("editor:close", []);
-		this.show("/top/activities");
+		this.app.callEvent("editor:close");
+		this.showCurrentPage();
 	}
 
 	toggleUpdateOrSave() {
@@ -143,40 +151,50 @@ export default class ActivitiesForm extends JetView {
 				webix.message("Activity was updated!");
 			}
 
-			form.clear();
-			this.app.callEvent("editor:close", []);
-			this.show("/top/activities");
+			this.toggleCloseForm();
 		}
 		else {
 			webix.message("Form is incomplete. Fill the form!");
 		}
 	}
 
+	showCurrentPage() {
+		const params = this.getUrl()[0].params;
+		const contactId = params.contactId;
+
+		if (contactId) {
+			this.app.callEvent("openContactInfo", [contactId]);
+			return;
+		}
+
+		this.show("/top/activities");
+	}
+
 	setFormValues() {
-		webix.promise.all([
-			activitiesCollection.waitData,
-			activityTypesCollection.waitData,
-			contactsCollection.waitData
-		]).then(() => {
-			const idParam = this.getParam("id");
-			const form = this.$$("activities_edit-form");
+		const params = this.getUrl()[0].params;
+		const activityId = params.activityId;
+		const contactId = params.contactId;
+		const form = this.$$("activities_edit-form");
+		const contactCombo = this.$$("contact_combo");
 
-			if (idParam) {
-				const item = activitiesCollection.getItem(idParam);
-				const dateAndTime = new Date(item.DueDate);
-				const itemValues = {
-					...item,
-					Date: dateAndTime,
-					Time: dateAndTime
-				};
+		if (activityId) {
+			const item = activitiesCollection.getItem(activityId);
+			item.Date = item.DueDate;
+			item.Time = item.DueDate;
 
-				this.setFormMode("save");
-				form.setValues(itemValues);
+			this.setFormMode("save");
+			form.setValues(item);
+			if (contactId) contactCombo.disable();
+		}
+
+		else {
+			form.clear();
+			if (contactId) {
+				contactCombo.setValue(contactId);
+				contactCombo.disable();
 			}
-			else {
-				this.setFormMode("add");
-			}
-		});
+			this.setFormMode("add");
+		}
 	}
 
 	setFormMode(mode) {

@@ -1,8 +1,11 @@
 import {JetView} from "webix-jet";
 
 import userIcon from "../../assets/icons/icon-user.jpg";
+import activitiesCollection from "../../models/activities";
 import contactsCollection from "../../models/contacts";
+import filesCollection from "../../models/files";
 import statusesCollection from "../../models/statuses";
+import ContactData from "./contactData";
 
 export default class ContactInfo extends JetView {
 	config() {
@@ -15,16 +18,18 @@ export default class ContactInfo extends JetView {
 					label: "Delete",
 					type: "icon",
 					icon: "wxi-trash",
-					css: "webix_transparent button-contact-toolbar",
-					width: 110
+					css: "webix_transparent button--border",
+					width: 110,
+					click: () => this.toggleDeleteContact()
 				},
 				{
 					view: "button",
 					label: "Edit",
 					type: "icon",
 					icon: "wxi-pencil",
-					css: "webix_transparent button-contact-toolbar",
-					width: 110
+					css: "webix_transparent button--border",
+					width: 110,
+					click: () => this.toggleOpenEditContactForm()
 				}
 			]
 		};
@@ -56,7 +61,7 @@ export default class ContactInfo extends JetView {
 					Skype: "skype",
 					Job: "tag",
 					Company: "briefcase-variant",
-					Birthday: "calendar-month",
+					BirthdayDate: "calendar-month",
 					Address: "map-marker-outline"
 				};
 				const defaultValue = "<dfn style=\"opacity: 0.5\">empty data</dfn>";
@@ -96,18 +101,52 @@ export default class ContactInfo extends JetView {
 					</div>`;
 			},
 			localId: "template_contact-info",
-			css: "template--grid_contact-info"
+			css: "template--grid_contact-info",
+			height: 250
 		};
 
-		const ui = {
+		const contactInfo = {
 			type: "clean",
+			localId: "contact-info",
 			rows: [
 				toolbar,
-				contactInfoTemplate
+				contactInfoTemplate,
+				ContactData
 			]
 		};
 
+		const empty = {
+			template: "Contact is not selected..."
+		};
+
+		const ui = {
+			cells: [
+				{
+					id: "contact-info",
+					rows: [
+						contactInfo
+					]
+				},
+				{
+					id: "empty-info",
+					rows: [
+						empty
+					]
+				}
+			],
+			animate: false
+		};
+
 		return ui;
+	}
+
+	init() {
+		webix.promise.all([
+			contactsCollection.waitData,
+			statusesCollection.waitData
+		]).then(() => {
+			this.setContactInfo();
+		});
 	}
 
 	urlChange() {
@@ -115,22 +154,59 @@ export default class ContactInfo extends JetView {
 	}
 
 	setContactInfo() {
-		const idParam = this.getParam("id");
+		const contactId = this.getParam("contactId");
 		const contactName = this.$$("template_contact-name");
 		const contactInfo = this.$$("template_contact-info");
 
-		webix.promise.all([
-			contactsCollection.waitData,
-			statusesCollection.waitData
-		]).then(() => {
-			if (idParam) {
-				const item = contactsCollection.getItem(idParam);
-				contactName.setValues(item);
-				contactInfo.setValues(item);
-			}
-			else {
-				contactName.setValues({});
-				contactInfo.setValues({});
+		if (contactId) {
+			const item = contactsCollection.getItem(contactId);
+
+			contactName.setValues(item);
+			contactInfo.setValues(item);
+			this.$$("contact-info").show();
+		}
+		else {
+			this.app.callEvent("onUnselectContactList");
+			this.$$("empty-info").show();
+		}
+	}
+
+	toggleOpenEditContactForm() {
+		const contactId = this.getParam("contactId");
+
+		this.app.callEvent("openContactForm", [contactId]);
+	}
+
+	toggleDeleteContact() {
+		const contactId = this.getParam("contactId");
+
+		webix.confirm({
+			title: "Delete...",
+			text: "Do you still want to delete this contact?",
+			ok: "Yes",
+			cancel: "No"
+		}).then(() => {
+			if (contactId) {
+				const contactActivities = [];
+				const contactFiles = [];
+
+				activitiesCollection.data.each((el) => {
+					if (String(el.ContactID) === String(contactId)) {
+						contactActivities.push(el.id);
+					}
+				});
+
+				filesCollection.data.each((el) => {
+					if (String(el.ContactID) === String(contactId)) {
+						contactFiles.push(el.id);
+					}
+				});
+
+				if (contactActivities.length) activitiesCollection.remove(contactActivities);
+				if (contactFiles.length) filesCollection.remove(contactFiles);
+
+				contactsCollection.remove(contactId);
+				this.app.callEvent("onSelectFirstContact");
 			}
 		});
 	}
