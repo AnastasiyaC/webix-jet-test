@@ -61,7 +61,6 @@ export default class ContactsList extends JetView {
 
 			if (!listFirstId) {
 				this.app.callEvent("openContactInfo");
-				list.unselectAll();
 				return;
 			}
 

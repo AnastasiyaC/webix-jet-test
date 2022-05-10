@@ -188,12 +188,10 @@ export default class ContactForm extends JetView {
 	}
 
 	init() {
-		webix.promise.all([
+		return webix.promise.all([
 			contactsCollection.waitData,
 			statusesCollection.waitData
-		]).then(() => {
-			this.setFormValues();
-		});
+		]);
 	}
 
 	urlChange() {
@@ -214,6 +212,7 @@ export default class ContactForm extends JetView {
 		}
 		else {
 			form.clear();
+			this.toggleDeleteUsersPhoto();
 			this.setFormMode("add");
 		}
 	}

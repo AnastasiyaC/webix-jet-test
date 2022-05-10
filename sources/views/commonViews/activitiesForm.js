@@ -179,15 +179,11 @@ export default class ActivitiesForm extends JetView {
 
 		if (activityId) {
 			const item = activitiesCollection.getItem(activityId);
-			const dateAndTime = new Date(item.DueDate);
-			const itemValues = {
-				...item,
-				Date: dateAndTime,
-				Time: dateAndTime
-			};
+			item.Date = item.DueDate;
+			item.Time = item.DueDate;
 
 			this.setFormMode("save");
-			form.setValues(itemValues);
+			form.setValues(item);
 			if (contactId) contactCombo.disable();
 		}
 
