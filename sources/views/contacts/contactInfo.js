@@ -191,13 +191,13 @@ export default class ContactInfo extends JetView {
 				const contactFiles = [];
 
 				activitiesCollection.data.each((el) => {
-					if (Number(el.ContactID) === Number(contactId)) {
+					if (String(el.ContactID) === String(contactId)) {
 						contactActivities.push(el.id);
 					}
 				});
 
 				filesCollection.data.each((el) => {
-					if (Number(el.ContactID) === Number(contactId)) {
+					if (String(el.ContactID) === String(contactId)) {
 						contactFiles.push(el.id);
 					}
 				});
