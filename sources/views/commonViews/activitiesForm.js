@@ -5,18 +5,16 @@ import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
 
 export default class ActivitiesForm extends JetView {
-	constructor(app) {
-		super(app);
-		this._editMode = "add";
-	}
-
 	config() {
+		const _ = this.app.getService("locale")._;
+
 		return {
 			view: "form",
 			localId: "activities_edit-form",
 			margin: 10,
 			width: 600,
 			elementsConfig: {
+				labelWidth: 100,
 				on: {
 					onFocus: () => {
 						const name = this.config.name;
@@ -30,20 +28,20 @@ export default class ActivitiesForm extends JetView {
 			elements: [
 				{
 					view: "textarea",
-					label: "Details",
+					label: _("Details"),
 					name: "Details",
 					height: 120
 				},
 				{
 					view: "combo",
-					label: "Type",
+					label: _("Type"),
 					name: "TypeID",
 					options: activityTypesCollection
 				},
 				{
 					view: "combo",
 					localId: "contact_combo",
-					label: "Contact",
+					label: _("Contact"),
 					name: "ContactID",
 					options: contactsCollection
 				},
@@ -51,25 +49,23 @@ export default class ActivitiesForm extends JetView {
 					cols: [
 						{
 							view: "datepicker",
-							label: "Date",
+							label: _("Date"),
 							name: "Date",
 							format: "%d %M %Y"
 						},
 						{
-							gravity: 0.2
-						},
-						{
 							view: "datepicker",
-							label: "Time",
+							label: _("Time"),
 							name: "Time",
 							format: "%H:%i",
-							type: "time"
+							type: "time",
+							labelAlign: "right"
 						}
 					]
 				},
 				{
 					view: "checkbox",
-					label: "Completed",
+					label: _("Completed"),
 					name: "State",
 					checkValue: "Close",
 					uncheckValue: "Open"
@@ -81,14 +77,13 @@ export default class ActivitiesForm extends JetView {
 						{
 							view: "button",
 							localId: "form_button-save",
-							value: this._editMode === "add" ? "Add" : "Save",
 							css: "webix_primary button--border",
 							width: 150,
 							click: () => this.toggleUpdateOrSave()
 						},
 						{
 							view: "button",
-							value: "Cancel",
+							value: _("Cancel"),
 							css: "button--border",
 							width: 150,
 							click: () => this.toggleCloseForm()
@@ -127,6 +122,7 @@ export default class ActivitiesForm extends JetView {
 
 	toggleUpdateOrSave() {
 		const form = this.$$("activities_edit-form");
+		const _ = this.app.getService("locale")._;
 
 		if (form.validate()) {
 			const values = form.getValues();
@@ -154,7 +150,7 @@ export default class ActivitiesForm extends JetView {
 			this.toggleCloseForm();
 		}
 		else {
-			webix.message("Form is incomplete. Fill the form!");
+			webix.message(_("incomplete form"));
 		}
 	}
 
@@ -199,7 +195,8 @@ export default class ActivitiesForm extends JetView {
 
 	setFormMode(mode) {
 		const activeButton = this.$$("form_button-save");
-		const activeButtonLabel = mode === "add" ? "Add" : "Save";
+		const _ = this.app.getService("locale")._;
+		const activeButtonLabel = mode === "add" ? _("Add") : _("Save");
 
 		this._editMode = mode;
 		activeButton.define("label", activeButtonLabel);

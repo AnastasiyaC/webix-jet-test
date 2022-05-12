@@ -9,26 +9,28 @@ import ContactData from "./contactData";
 
 export default class ContactInfo extends JetView {
 	config() {
+		const _ = this.app.getService("locale")._;
+
 		const settingsButtons = {
 			margin: 20,
 			padding: 10,
 			cols: [
 				{
 					view: "button",
-					label: "Delete",
+					label: _("Delete"),
 					type: "icon",
 					icon: "wxi-trash",
 					css: "webix_transparent button--border",
-					width: 110,
+					width: 120,
 					click: () => this.toggleDeleteContact()
 				},
 				{
 					view: "button",
-					label: "Edit",
+					label: _("Edit"),
 					type: "icon",
 					icon: "wxi-pencil",
 					css: "webix_transparent button--border",
-					width: 110,
+					width: 120,
 					click: () => this.toggleOpenEditContactForm()
 				}
 			]
@@ -43,7 +45,7 @@ export default class ContactInfo extends JetView {
 
 						return `
 							<span class="contact-name">
-								${obj.value || "<dfn style=\"opacity: 0.5\">empty data</dfn>"}
+								${`${obj.FirstName} ${obj.LastName}` || "<dfn style=\"opacity: 0.5\">empty data</dfn>"}
 							</span>`;
 					},
 					localId: "template_contact-name",
@@ -75,9 +77,12 @@ export default class ContactInfo extends JetView {
 					</div>`;
 				const statusValue = statusesCollection.getItem(obj.StatusID) ?
 					statusesCollection.getItem(obj.StatusID).Value : defaultValue;
+				const statusIconName = statusesCollection.getItem(obj.StatusID) ?
+					statusesCollection.getItem(obj.StatusID).Icon : "";
+				const statusIcon = statusIconName && `<span class="webix_icon mdi mdi-${statusIconName}"></span> `;
 				const status = `
 					<span class="contact-info__status">
-						${statusValue || ""}
+						${statusIcon + statusValue}
 					</span>`;
 				const infoTotal = Object.keys(info).map(el => `
 					<div class="details__item">
@@ -175,16 +180,18 @@ export default class ContactInfo extends JetView {
 		const contactId = this.getParam("contactId");
 
 		this.app.callEvent("openContactForm", [contactId]);
+		this.app.callEvent("onDisableListFilter");
 	}
 
 	toggleDeleteContact() {
 		const contactId = this.getParam("contactId");
+		const _ = this.app.getService("locale")._;
 
 		webix.confirm({
-			title: "Delete...",
-			text: "Do you still want to delete this contact?",
-			ok: "Yes",
-			cancel: "No"
+			title: _("Deleting"),
+			text: _("Delete contact"),
+			ok: _("Yes"),
+			cancel: _("No")
 		}).then(() => {
 			if (contactId) {
 				const contactActivities = [];

@@ -5,6 +5,8 @@ import ContactFiliesDatatable from "./contactFiliesDatatable";
 
 export default class ContactData extends JetView {
 	config() {
+		const _ = this.app.getService("locale")._;
+
 		return {
 			type: "clean",
 			rows: [
@@ -16,11 +18,11 @@ export default class ContactData extends JetView {
 					options: [
 						{
 							id: "activities",
-							value: "Activities"
+							value: _("Activities")
 						},
 						{
 							id: "filies",
-							value: "Filies"
+							value: _("Filies")
 						}
 					]
 				},

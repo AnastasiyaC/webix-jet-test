@@ -1,0 +1,170 @@
+import {JetView} from "webix-jet";
+
+export default class EditableDatatable extends JetView {
+	constructor(app, data, relatedData = null, relatedId = null) {
+		super(app);
+		this._dataCollection = data;
+		this._relatedDataCollection = relatedData;
+		this._relatedId = relatedId;
+	}
+
+	config() {
+		const _ = this.app.getService("locale")._;
+
+		const form = {
+			view: "form",
+			localId: "form_update-datatable",
+			elementsConfig: {
+				margin: 20,
+				labelWidth: "auto",
+				on: {
+					onFocus: () => {
+						const name = this.config.name;
+
+						if (name) {
+							this.clearFormValidation();
+						}
+					}
+				}
+			},
+			cols: [
+				{
+					view: "text",
+					label: _("Value"),
+					name: "Value"
+				},
+				{
+					gravity: 0.1
+				},
+				{
+					view: "text",
+					label: _("Icon"),
+					name: "Icon"
+				},
+				{
+					gravity: 0.1
+				},
+				{
+					rows: [
+						{
+							view: "button",
+							label: _("Add"),
+							type: "icon",
+							icon: "wxi-plus-square",
+							css: "webix_transparent button--border",
+							width: 200,
+							click: () => {
+								this.addToDatatable();
+							}
+						}
+					]
+				}
+			],
+			rules: {
+				Value: webix.rules.isNotEmpty,
+				Icon: webix.rules.isNotEmpty
+			}
+		};
+
+		const datatable = {
+			view: "datatable",
+			localId: "settings_datatable",
+			editable: true,
+			editaction: "dblclick",
+			scrollX: false,
+			select: true,
+			columns: [
+				{
+					id: "Value",
+					header: _("Value"),
+					editor: "text",
+					width: 300
+				},
+				{
+					id: "Icon",
+					header: _("Icon"),
+					editor: "text",
+					template: obj => `<span class="webix_icon mdi mdi-${obj.Icon}"></span>`,
+					fillspace: true
+				},
+				{
+					id: "Delete",
+					header: "",
+					template: "{common.trashIcon()}",
+					width: 50
+				}
+			],
+			onClick: {
+				"wxi-trash": (e, id) => {
+					this.deleteDatatableItem(id);
+				}
+			},
+			rules: {
+				Value: webix.rules.isNotEmpty,
+				Icon: webix.rules.isNotEmpty
+			}
+		};
+
+		return {
+			rows: [
+				form,
+				datatable
+			]
+		};
+	}
+
+	init() {
+		const datatable = this.$$("settings_datatable");
+		const collectionArr = [this._dataCollection];
+
+		if (this._relatedDataCollection) collectionArr.push(this._relatedDataCollection);
+
+		webix.promise.all([collectionArr]).then(() => datatable.sync(this._dataCollection));
+	}
+
+	addToDatatable() {
+		const _ = this.app.getService("locale")._;
+		const form = this.$$("form_update-datatable");
+
+		if (form.validate()) {
+			const values = form.getValues();
+
+			this._dataCollection.add(values);
+			form.clear();
+			webix.message(_("Update datatable"));
+		}
+		else {
+			webix.message(_("incomplete form"));
+		}
+	}
+
+	deleteDatatableItem(id) {
+		const _ = this.app.getService("locale")._;
+
+		webix.confirm({
+			title: _("Deleting"),
+			text: _("Delete line"),
+			ok: _("Yes"),
+			cancel: _("No")
+		}).then(() => {
+			if (this._relatedDataCollection && this._relatedId) {
+				const removingIds = [];
+
+				this._relatedDataCollection.data.each((el) => {
+					if (String(el[this._relatedId]) === String(id)) {
+						removingIds.push(el.id);
+					}
+				});
+
+				if (removingIds.length) this._relatedDataCollection.remove(removingIds);
+			}
+			this._dataCollection.remove(id);
+		});
+	}
+
+	clearFormValidation() {
+		const form = this.$$("form_update-datatable");
+
+		form.clearValidation();
+	}
+}

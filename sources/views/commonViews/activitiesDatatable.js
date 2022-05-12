@@ -3,6 +3,7 @@ import {JetView} from "webix-jet";
 import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
+import ActivitiesFilterTabbar from "./activitesFilterTabbar";
 import ActivitiesModalWindow from "./activitiesModalWindow";
 
 export default class ActivitiesDatatable extends JetView {
@@ -12,19 +13,21 @@ export default class ActivitiesDatatable extends JetView {
 	}
 
 	config() {
+		const _ = this.app.getService("locale")._;
+
 		const toolbar = {
 			view: "toolbar",
 			paddingX: 20,
 			paddingY: 5,
 			cols: [
-				{ },
+				this._hiddenColumn ? { } : ActivitiesFilterTabbar,
 				{
 					view: "button",
-					label: "Add activity",
+					label: _("Add activity"),
 					type: "icon",
 					icon: "wxi-plus-square",
 					css: "webix_transparent button--border",
-					width: 150,
+					width: 220,
 					click: () => {
 						this.toggleAddActivity();
 					}
@@ -50,7 +53,7 @@ export default class ActivitiesDatatable extends JetView {
 				{
 					id: "TypeID",
 					header: [
-						"Activity type",
+						_("Activity type"),
 						{
 							content: "selectFilter"
 						}
@@ -60,15 +63,17 @@ export default class ActivitiesDatatable extends JetView {
 					fillspace: true,
 					template: (obj) => {
 						const activityType = activityTypesCollection.getItem(obj.TypeID);
+						const activityIcon = activityType ? `<span class="webix_icon mdi mdi-${activityType.Icon}"></span>` : " ";
+						const activityValue = activityType ? activityType.Value : "activity not found";
 
-						return activityType ? activityType.Value : "activity not found";
+						return `${activityIcon} ${activityValue}`;
 					}
 				},
 				{
 					id: "DueDate",
 					format: webix.i18n.longDateFormatStr,
 					header: [
-						"Due date",
+						_("Due date"),
 						{
 							content: "datepickerFilter",
 							compare: this.compareDates
@@ -79,14 +84,17 @@ export default class ActivitiesDatatable extends JetView {
 				},
 				{
 					id: "Details",
-					header: ["Details", {content: "textFilter"}],
+					header: [
+						_("Details"),
+						{content: "textFilter"}
+					],
 					sort: "text",
 					fillspace: true
 				},
 				{
 					id: "ContactID",
 					header: [
-						"Contacts",
+						_("Contacts"),
 						{
 							content: "selectFilter"
 						}
@@ -157,6 +165,8 @@ export default class ActivitiesDatatable extends JetView {
 			this.on(activitiesCollection.data, "onStoreUpdated", () => {
 				datatable.filterByAll();
 			});
+
+			this.on(this.app, "filterByTabName", tabId => this.filterByTabFilterName(tabId));
 		});
 		this.on(datatable, "onAfterFilter", () => this.filterByContactName());
 	}
@@ -177,11 +187,13 @@ export default class ActivitiesDatatable extends JetView {
 	}
 
 	toggleDeleteItem(id) {
+		const _ = this.app.getService("locale")._;
+
 		webix.confirm({
-			title: "Delete...",
-			text: "Do you still want to delete this activity?",
-			ok: "Yes",
-			cancel: "No"
+			title: _("Deleting"),
+			text: _("Delete activity"),
+			ok: _("Yes"),
+			cancel: _("No")
 		}).then(() => {
 			activitiesCollection.remove(id);
 		});
@@ -200,5 +212,45 @@ export default class ActivitiesDatatable extends JetView {
 		const contactId = this.getParam("contactId");
 
 		if (contactId) datatable.filter("#ContactID#", contactId, true);
+	}
+
+	filterByTabFilterName(tabId) {
+		const datatable = this.$$("activities_datatable");
+		const currentDate = new Date();
+
+		datatable.filter((obj) => {
+			const {State, DueDate} = obj;
+
+			if (tabId === "Completed") {
+				return State === "Close";
+			}
+			if (tabId === "Overdue") {
+				return State === "Open" && DueDate < currentDate;
+			}
+			if (tabId === "Completed") {
+				return State === "Close";
+			}
+			if (tabId === "Today") {
+				return webix.Date.equal(webix.Date.dayStart(DueDate), webix.Date.dayStart(currentDate));
+			}
+			if (tabId === "Tomorrow") {
+				const tomorrowDayStart = webix.Date.add(webix.Date.dayStart(currentDate), 1, "day");
+
+				return webix.Date.equal(webix.Date.dayStart(DueDate), tomorrowDayStart);
+			}
+			if (tabId === "ThisWeek") {
+				const weeekStart = webix.Date.weekStart(currentDate);
+				const weekEnd = webix.Date.add(webix.Date.weekStart(currentDate), 1, "week");
+
+				return DueDate >= weeekStart && DueDate <= weekEnd;
+			}
+			if (tabId === "ThisMonth") {
+				const monthStart = webix.Date.monthStart(currentDate);
+				const monthEnd = webix.Date.add(webix.Date.monthStart(currentDate), 1, "month");
+
+				return DueDate >= monthStart && DueDate <= monthEnd;
+			}
+			return true;
+		});
 	}
 }
