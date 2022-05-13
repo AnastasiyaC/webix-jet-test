@@ -179,8 +179,7 @@ export default class ContactInfo extends JetView {
 	toggleOpenEditContactForm() {
 		const contactId = this.getParam("contactId");
 
-		this.app.callEvent("openContactForm", [contactId]);
-		this.app.callEvent("onDisableListFilter");
+		this.app.callEvent("contactForm:open", [contactId]);
 	}
 
 	toggleDeleteContact() {
@@ -188,8 +187,8 @@ export default class ContactInfo extends JetView {
 		const _ = this.app.getService("locale")._;
 
 		webix.confirm({
-			title: _("Deleting"),
-			text: _("Delete contact"),
+			title: _("Delete..."),
+			text: _("Do you still want to delete this contact?"),
 			ok: _("Yes"),
 			cancel: _("No")
 		}).then(() => {
@@ -213,7 +212,6 @@ export default class ContactInfo extends JetView {
 				if (contactFiles.length) filesCollection.remove(contactFiles);
 
 				contactsCollection.remove(contactId);
-				this.app.callEvent("onSelectFirstContact");
 			}
 		});
 	}

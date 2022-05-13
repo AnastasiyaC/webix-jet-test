@@ -37,7 +37,7 @@ export default class ContactsList extends JetView {
 		const listFilter = {
 			view: "text",
 			localId: "contact_filter",
-			placeholder: _("Type to find contact"),
+			placeholder: _("Type to find matching contacts"),
 			height: 60
 		};
 
@@ -72,7 +72,7 @@ export default class ContactsList extends JetView {
 			const listFirstId = list.getFirstId();
 
 			if (!listFirstId) {
-				this.app.callEvent("openContactInfo");
+				this.app.callEvent("contactInfo:open");
 				return;
 			}
 
@@ -80,25 +80,30 @@ export default class ContactsList extends JetView {
 		});
 
 		this.on(list, "onAfterSelect", (id) => {
-			this.app.callEvent("openContactInfo", [id]);
-		});
-		this.on(this.app, "onSelectFirstContact", () => list.select(list.getFirstId()));
-		this.on(this.app, "onSelectContact", id => list.select(id));
-		this.on(this.app, "onUnselectContactList", () => list.unselectAll());
-		this.on(listFilter, "onTimedKeyPress", () => this.filterList());
-		this.on(this.app, "onDisableListFilter", () => listFilter.disable());
-		this.on(this.app, "onEnableListFilter", () => {
+			this.app.callEvent("contactInfo:open", [id]);
 			listFilter.enable();
+		});
+		this.on(contactsCollection.data, "onAfterDelete", () => list.select(list.getFirstId()));
+		this.on(this.app, "onUnselectContactList", () => list.unselectAll());
+		this.on(listFilter, "onTimedKeyPress", () => {
 			this.filterList();
+			if (!list.getFirstId()) this.show("./contacts.contactInfo");
+			list.select(list.getFirstId());
+		});
+		this.on(this.app, "contactForm:open", () => listFilter.disable());
+		this.on(this.app, "contactForm:close", (id) => {
+			if (list.isSelected(id)) this.app.callEvent("contactInfo:open", [id]);
+			else list.select(id || list.getFirstId());
+			this.filterList();
+			listFilter.enable();
 		});
 	}
 
 	toggleOpenAddContactForm() {
 		const list = this.$$("contacts_list");
 
-		this.app.callEvent("openContactForm");
+		this.app.callEvent("contactForm:open");
 		list.unselectAll();
-		this.app.callEvent("onDisableListFilter");
 	}
 
 	filterList() {
@@ -107,6 +112,10 @@ export default class ContactsList extends JetView {
 		const value = listFilter.getValue().toLowerCase();
 		const firstChar = value[0];
 
+		if (!value) {
+			list.filter();
+			return;
+		}
 		list.filter((obj) => {
 			const status = statusesCollection.getItem(obj.StatusID);
 			const statusValue = status ? status.Value : "";
@@ -135,14 +144,14 @@ export default class ContactsList extends JetView {
 						return startDateString < seachYearValue || birthdayString < seachYearValue;
 					}
 				}
+				else {
+					return false;
+				}
 				return true;
 			}
 
 			filter = filter.toString().toLowerCase();
 			return (filter.indexOf(value) !== -1);
 		});
-
-		if (!list.getFirstId()) this.show("./contacts.contactInfo");
-		list.select(list.getFirstId());
 	}
 }

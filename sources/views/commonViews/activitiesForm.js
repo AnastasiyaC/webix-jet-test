@@ -159,7 +159,7 @@ export default class ActivitiesForm extends JetView {
 		const contactId = params.contactId;
 
 		if (contactId) {
-			this.app.callEvent("openContactInfo", [contactId]);
+			this.app.callEvent("contactInfo:open", [contactId]);
 			return;
 		}
 

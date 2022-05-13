@@ -3,6 +3,7 @@ import {JetView} from "webix-jet";
 import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import contactsCollection from "../../models/contacts";
+import activitiesFilters from "../../utils/activitiesFilters";
 import ActivitiesFilterTabbar from "./activitesFilterTabbar";
 import ActivitiesModalWindow from "./activitiesModalWindow";
 
@@ -163,12 +164,19 @@ export default class ActivitiesDatatable extends JetView {
 			this.filterByContactName();
 
 			this.on(activitiesCollection.data, "onStoreUpdated", () => {
-				datatable.filterByAll();
+				this.filterByContactName();
+				this.filterByTabFilterName(this._tabId);
 			});
 
-			this.on(this.app, "filterByTabName", tabId => this.filterByTabFilterName(tabId));
+			this.on(this.app, "filterByTabName", (tabId) => {
+				this._tabId = tabId;
+				datatable.filterByAll();
+			});
 		});
-		this.on(datatable, "onAfterFilter", () => this.filterByContactName());
+		this.on(datatable, "onAfterFilter", () => {
+			this.filterByContactName();
+			this.filterByTabFilterName(this._tabId);
+		});
 	}
 
 	urlChange() {
@@ -190,8 +198,8 @@ export default class ActivitiesDatatable extends JetView {
 		const _ = this.app.getService("locale")._;
 
 		webix.confirm({
-			title: _("Deleting"),
-			text: _("Delete activity"),
+			title: _("Delete..."),
+			text: _("Do you still want to delete this activity?"),
 			ok: _("Yes"),
 			cancel: _("No")
 		}).then(() => {
@@ -216,41 +224,8 @@ export default class ActivitiesDatatable extends JetView {
 
 	filterByTabFilterName(tabId) {
 		const datatable = this.$$("activities_datatable");
-		const currentDate = new Date();
 
-		datatable.filter((obj) => {
-			const {State, DueDate} = obj;
-
-			if (tabId === "Completed") {
-				return State === "Close";
-			}
-			if (tabId === "Overdue") {
-				return State === "Open" && DueDate < currentDate;
-			}
-			if (tabId === "Completed") {
-				return State === "Close";
-			}
-			if (tabId === "Today") {
-				return webix.Date.equal(webix.Date.dayStart(DueDate), webix.Date.dayStart(currentDate));
-			}
-			if (tabId === "Tomorrow") {
-				const tomorrowDayStart = webix.Date.add(webix.Date.dayStart(currentDate), 1, "day");
-
-				return webix.Date.equal(webix.Date.dayStart(DueDate), tomorrowDayStart);
-			}
-			if (tabId === "ThisWeek") {
-				const weeekStart = webix.Date.weekStart(currentDate);
-				const weekEnd = webix.Date.add(webix.Date.weekStart(currentDate), 1, "week");
-
-				return DueDate >= weeekStart && DueDate <= weekEnd;
-			}
-			if (tabId === "ThisMonth") {
-				const monthStart = webix.Date.monthStart(currentDate);
-				const monthEnd = webix.Date.add(webix.Date.monthStart(currentDate), 1, "month");
-
-				return DueDate >= monthStart && DueDate <= monthEnd;
-			}
-			return true;
-		});
+		if (this._hiddenColumn) return;
+		datatable.filter(activitiesFilters[tabId], null, true);
 	}
 }

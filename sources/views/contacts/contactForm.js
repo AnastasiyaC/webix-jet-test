@@ -244,24 +244,22 @@ export default class ContactForm extends JetView {
 
 			values.Photo = usersPhoto.getValues().Photo;
 			values.Birthday = dateFormat(values.Birthday);
-			values.StartDate = dateFormat(values.StartDate);
+			values.StartDate = values.StartDate ? dateFormat(values.StartDate) : dateFormat(new Date());
 
 			if (this._editMode === "add") {
 				contactsCollection.waitSave(() => contactsCollection.add(values))
 					.then((obj) => {
-						this.app.callEvent("onSelectContact", [obj.id]);
+						this.app.callEvent("contactForm:close", [obj.id]);
 					});
-				webix.message(_("Added contact"));
+				webix.message(_("Added new contact!"));
 			}
 			else {
 				contactsCollection.updateItem(values.id, values);
-				webix.message(_("Updated contact"));
-				this.app.callEvent("openContactInfo", [values.id]);
+				webix.message(_("Contact was updated!"));
+				this.app.callEvent("contactForm:close", [values.id]);
 			}
 
 			form.clear();
-			this.app.callEvent("onEnableListFilter");
-			// onFilterList
 		}
 	}
 
@@ -286,9 +284,8 @@ export default class ContactForm extends JetView {
 		const contactId = this.getParam("contactId");
 
 		form.clear();
-		if (contactId) this.app.callEvent("openContactInfo", [contactId]);
-		else this.app.callEvent("onSelectFirstContact");
-		this.app.callEvent("onEnableListFilter");
+		if (contactId) this.app.callEvent("contactForm:close", [contactId]);
+		else this.app.callEvent("contactForm:close");
 	}
 
 	clearFormValidation() {

@@ -1,6 +1,5 @@
 import {JetView} from "webix-jet";
 
-import activitiesCollection from "../../models/activities";
 import activityTypesCollection from "../../models/activityTypes";
 import statusesCollection from "../../models/statuses";
 import EditableDatatable from "./editableDatatable";
@@ -31,7 +30,7 @@ export default class DataSettings extends JetView {
 						{
 							id: "Activities",
 							rows: [
-								new EditableDatatable(this.app, activityTypesCollection, activitiesCollection, "TypeID")
+								new EditableDatatable(this.app, activityTypesCollection)
 							]
 						},
 						{

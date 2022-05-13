@@ -1,11 +1,11 @@
 import {JetView} from "webix-jet";
 
+import iconsCollection from "../../models/icons";
+
 export default class EditableDatatable extends JetView {
-	constructor(app, data, relatedData = null, relatedId = null) {
+	constructor(app, data) {
 		super(app);
 		this._dataCollection = data;
-		this._relatedDataCollection = relatedData;
-		this._relatedId = relatedId;
 	}
 
 	config() {
@@ -37,8 +37,14 @@ export default class EditableDatatable extends JetView {
 					gravity: 0.1
 				},
 				{
-					view: "text",
+					view: "richselect",
 					label: _("Icon"),
+					options: {
+						body: {
+							data: iconsCollection,
+							template: obj => `<span class="webix_icon mdi mdi-${obj.value}"></span>`
+						}
+					},
 					name: "Icon"
 				},
 				{
@@ -83,7 +89,8 @@ export default class EditableDatatable extends JetView {
 				{
 					id: "Icon",
 					header: _("Icon"),
-					editor: "text",
+					editor: "select",
+					options: iconsCollection,
 					template: obj => `<span class="webix_icon mdi mdi-${obj.Icon}"></span>`,
 					fillspace: true
 				},
@@ -115,11 +122,8 @@ export default class EditableDatatable extends JetView {
 
 	init() {
 		const datatable = this.$$("settings_datatable");
-		const collectionArr = [this._dataCollection];
 
-		if (this._relatedDataCollection) collectionArr.push(this._relatedDataCollection);
-
-		webix.promise.all([collectionArr]).then(() => datatable.sync(this._dataCollection));
+		this._dataCollection.waitData.then(() => datatable.sync(this._dataCollection));
 	}
 
 	addToDatatable() {
@@ -131,10 +135,10 @@ export default class EditableDatatable extends JetView {
 
 			this._dataCollection.add(values);
 			form.clear();
-			webix.message(_("Update datatable"));
+			webix.message(_("Datatable was updated!"));
 		}
 		else {
-			webix.message(_("incomplete form"));
+			webix.message(_("Form is incomplete. Fill the form!"));
 		}
 	}
 
@@ -142,22 +146,11 @@ export default class EditableDatatable extends JetView {
 		const _ = this.app.getService("locale")._;
 
 		webix.confirm({
-			title: _("Deleting"),
-			text: _("Delete line"),
+			title: _("Delete..."),
+			text: _("Do you still want delete this line?"),
 			ok: _("Yes"),
 			cancel: _("No")
 		}).then(() => {
-			if (this._relatedDataCollection && this._relatedId) {
-				const removingIds = [];
-
-				this._relatedDataCollection.data.each((el) => {
-					if (String(el[this._relatedId]) === String(id)) {
-						removingIds.push(el.id);
-					}
-				});
-
-				if (removingIds.length) this._relatedDataCollection.remove(removingIds);
-			}
 			this._dataCollection.remove(id);
 		});
 	}

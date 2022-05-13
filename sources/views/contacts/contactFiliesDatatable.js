@@ -89,8 +89,8 @@ export default class ContactFiliesDatatable extends JetView {
 		const _ = this.app.getService("locale")._;
 
 		webix.confirm({
-			title: _("Deleting"),
-			text: _("Delete file"),
+			title: _("Delete..."),
+			text: _("Do you still want to delete this file?"),
 			ok: _("Yes"),
 			cancel: _("No")
 		}).then(() => {
@@ -122,6 +122,6 @@ export default class ContactFiliesDatatable extends JetView {
 	showErrorMessage() {
 		const _ = this.app.getService("locale")._;
 
-		webix.message(_("Load error"));
+		webix.message(_("Error during file upload..."));
 	}
 }
