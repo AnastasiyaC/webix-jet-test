@@ -42,7 +42,7 @@ export default class EditableDatatable extends JetView {
 					options: {
 						body: {
 							data: iconsCollection,
-							template: obj => `<span class="webix_icon mdi mdi-${obj.value}"></span>`
+							template: obj => `<span class="webix_icon mdi mdi-${obj.Icon}"></span>`
 						}
 					},
 					name: "Icon"
@@ -89,7 +89,12 @@ export default class EditableDatatable extends JetView {
 				{
 					id: "Icon",
 					header: _("Icon"),
-					editor: "select",
+					editor: "richselect",
+					suggest: {
+						body: {
+							template: obj => `<span class="webix_icon mdi mdi-${obj.Icon}"></span>`
+						}
+					},
 					options: iconsCollection,
 					template: obj => `<span class="webix_icon mdi mdi-${obj.Icon}"></span>`,
 					fillspace: true

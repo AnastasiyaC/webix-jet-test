@@ -1,39 +1,39 @@
 const icons = [
 	{
-		id: "Flag",
-		value: "flag"
+		id: "flag",
+		Icon: "flag"
 	},
 	{
-		id: "Comment",
-		value: "comment"
+		id: "comment",
+		Icon: "comment"
 	},
 	{
-		id: "Clock",
-		value: "clock"
+		id: "clock",
+		Icon: "clock"
 	},
 	{
-		id: "Phone",
-		value: "phone"
+		id: "phone",
+		Icon: "phone"
 	},
 	{
-		id: "Skype",
-		value: "skype"
+		id: "skype",
+		Icon: "skype"
 	},
 	{
-		id: "FileVideo",
-		value: "file-video"
+		id: "fileVideo",
+		Icon: "file-video"
 	},
 	{
-		id: "Sync",
-		value: "sync"
+		id: "sync",
+		Icon: "sync"
 	},
 	{
-		id: "Coffee",
-		value: "coffee"
+		id: "coffee",
+		Icon: "coffee"
 	},
 	{
 		id: "account",
-		value: "account"
+		Icon: "account"
 	}
 ];
 
