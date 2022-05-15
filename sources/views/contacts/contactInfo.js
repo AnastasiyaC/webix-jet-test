@@ -171,7 +171,7 @@ export default class ContactInfo extends JetView {
 			this.$$("contact-info").show();
 		}
 		else {
-			this.app.callEvent("onUnselectContactList");
+			this.app.callEvent("contactInfo:open");
 			this.$$("empty-info").show();
 		}
 	}

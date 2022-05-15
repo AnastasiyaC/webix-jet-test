@@ -84,12 +84,12 @@ export default class ContactsList extends JetView {
 			listFilter.enable();
 		});
 		this.on(contactsCollection.data, "onAfterDelete", () => list.select(list.getFirstId()));
-		this.on(this.app, "onUnselectContactList", () => list.unselectAll());
 		this.on(listFilter, "onTimedKeyPress", () => {
 			this.filterList();
 			if (!list.getFirstId()) this.show("./contacts.contactInfo");
 			list.select(list.getFirstId());
 		});
+		this.on(this.app, "contactInfo:open", () => list.unselectAll());
 		this.on(this.app, "contactForm:open", () => listFilter.disable());
 		this.on(this.app, "contactForm:close", (id) => {
 			if (list.isSelected(id)) this.app.callEvent("contactInfo:open", [id]);
