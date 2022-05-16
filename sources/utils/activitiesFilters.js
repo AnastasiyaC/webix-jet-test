@@ -1,5 +1,4 @@
 const activitiesFilters = {
-	All: () => true,
 	Overdue: obj => obj.State === "Open" && obj.DueDate < new Date(),
 	Completed: obj => obj.State === "Close",
 	Today: obj => webix.Date.equal(webix.Date.dayStart(obj.DueDate), webix.Date.dayStart(new Date())),
