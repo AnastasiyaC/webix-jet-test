@@ -165,7 +165,7 @@ export default class ActivitiesDatatable extends JetView {
 
 			this.on(activitiesCollection.data, "onStoreUpdated", () => {
 				this.filterByContactName();
-				this.filterByTabFilterName(this._tabId);
+				this.filterByTabFilterName();
 			});
 
 			this.on(this.app, "filterByTabName", (tabId) => {
@@ -175,7 +175,7 @@ export default class ActivitiesDatatable extends JetView {
 		});
 		this.on(datatable, "onAfterFilter", () => {
 			this.filterByContactName();
-			this.filterByTabFilterName(this._tabId);
+			this.filterByTabFilterName();
 		});
 	}
 
@@ -222,10 +222,10 @@ export default class ActivitiesDatatable extends JetView {
 		if (contactId) datatable.filter("#ContactID#", contactId, true);
 	}
 
-	filterByTabFilterName(tabId) {
+	filterByTabFilterName() {
 		const datatable = this.$$("activities_datatable");
 
 		if (this._hiddenColumn) return;
-		datatable.filter(activitiesFilters[tabId], null, true);
+		if (this._tabId) datatable.filter(activitiesFilters[this._tabId], null, true);
 	}
 }

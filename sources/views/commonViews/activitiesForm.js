@@ -150,7 +150,7 @@ export default class ActivitiesForm extends JetView {
 			this.toggleCloseForm();
 		}
 		else {
-			webix.message(_("incomplete form"));
+			webix.message(_("Form is incomplete. Fill the form!"));
 		}
 	}
 
