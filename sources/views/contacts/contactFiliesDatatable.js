@@ -4,6 +4,8 @@ import filesCollection from "../../models/files";
 
 export default class ContactFiliesDatatable extends JetView {
 	config() {
+		const _ = this.app.getService("locale")._;
+
 		const filiesDataTable = {
 			view: "datatable",
 			localId: "files_datatable",
@@ -13,20 +15,20 @@ export default class ContactFiliesDatatable extends JetView {
 			columns: [
 				{
 					id: "Name",
-					header: "Name",
+					header: _("Name"),
 					sort: "text",
 					fillspace: true
 				},
 				{
 					id: "ChangeDate",
 					format: webix.i18n.longDateFormatStr,
-					header: "Change date",
+					header: _("Change date"),
 					sort: "date",
 					width: 200
 				},
 				{
 					id: "SizeText",
-					header: "Size",
+					header: _("Size"),
 					sort: this.sortByFileSizes,
 					width: 100
 				},
@@ -44,7 +46,7 @@ export default class ContactFiliesDatatable extends JetView {
 
 		const updoadButton = {
 			view: "uploader",
-			label: "Upload file",
+			label: _("Upload file"),
 			type: "icon",
 			icon: "mdi mdi-cloud-upload",
 			css: "webix_transparent button--border",
@@ -84,11 +86,13 @@ export default class ContactFiliesDatatable extends JetView {
 	}
 
 	toggleDeleteFile(id) {
+		const _ = this.app.getService("locale")._;
+
 		webix.confirm({
-			title: "Delete...",
-			text: "Do you still want to delete this file?",
-			ok: "Yes",
-			cancel: "No"
+			title: _("Delete..."),
+			text: _("Do you still want to delete this file?"),
+			ok: _("Yes"),
+			cancel: _("No")
 		}).then(() => {
 			filesCollection.remove(id);
 		});
@@ -116,6 +120,8 @@ export default class ContactFiliesDatatable extends JetView {
 	}
 
 	showErrorMessage() {
-		webix.message("Error during file upload...");
+		const _ = this.app.getService("locale")._;
+
+		webix.message(_("Error during file upload..."));
 	}
 }

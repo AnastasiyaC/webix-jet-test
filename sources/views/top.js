@@ -2,6 +2,8 @@ import {JetView, plugins} from "webix-jet";
 
 export default class TopView extends JetView {
 	config() {
+		const _ = this.app.getService("locale")._;
+
 		const header = {
 			type: "header",
 			localId: "page_header",
@@ -14,14 +16,25 @@ export default class TopView extends JetView {
 			id: "top:menu",
 			localId: "page_menu",
 			css: "app_menu",
-			width: 180,
+			width: 200,
 			layout: "y",
 			select: true,
 			template: "<span class='webix_icon #icon#'></span> #value# ",
 			data: [
-				{icon: "wxi-user", value: "Contacts", id: "contacts"},
-				{icon: "wxi-calendar", value: "Activities", id: "activities"},
-				{icon: "wxi-columns", value: "Settings", id: "settings"}
+				{
+					icon: "wxi-user",
+					value: _("Contacts"),
+					id: "contacts"
+				},
+				{
+					icon: "wxi-calendar",
+					value: _("Activities"),
+					id: "activities"
+				},
+				{
+					icon: "wxi-columns",
+					value: _("Settings"),
+					id: "settings"}
 			]
 		};
 
@@ -32,7 +45,9 @@ export default class TopView extends JetView {
 				{
 					cols: [
 						menu,
-						{$subview: true}
+						{
+							$subview: true
+						}
 					]
 				}
 			]

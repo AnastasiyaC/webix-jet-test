@@ -26,8 +26,9 @@ export default class ActivitiesModalWindow extends JetView {
 
 	showWindow(id) {
 		const popupWindow = this.getRoot();
+		const _ = this.app.getService("locale")._;
 
-		popupWindow.getHead().setHTML(id ? "Edit activity" : "Add activity");
+		popupWindow.getHead().setHTML(id ? _("Edit activity") : _("Add activity"));
 
 		if (id) {
 			this.setParam("activityId", id, true);

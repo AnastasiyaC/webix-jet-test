@@ -15,11 +15,11 @@ export default class ContactsView extends JetView {
 	}
 
 	init() {
-		this.on(this.app, "openContactInfo", (id) => {
+		this.on(this.app, "contactInfo:open", (id) => {
 			if (id) this.show(`./contacts.contactInfo?contactId=${id}`);
 			else this.show("./contacts.contactInfo");
 		});
-		this.on(this.app, "openContactForm", (id) => {
+		this.on(this.app, "contactForm:open", (id) => {
 			if (id) this.show(`./contacts.contactForm?contactId=${id}`);
 			else this.show("./contacts.contactForm");
 		});
